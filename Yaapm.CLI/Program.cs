@@ -1,4 +1,4 @@
-﻿using Yaapm.RPC;
+﻿using Database;
 
 namespace Yaapm.CLI;
 
@@ -6,8 +6,7 @@ internal static class Program
 {
     private static void Main(string[] args)
     {
-        var rpcEngine = new RpcEngine();
-        
-        Console.WriteLine(string.Join(", ", rpcEngine.Suggest("zen-browser").Result ?? ["N/A"]));
+        DatabaseController.TryGetPkgInfo("gtk3", out var info);
+        Console.WriteLine(info?.InstallDate.GetType());
     }
 }
