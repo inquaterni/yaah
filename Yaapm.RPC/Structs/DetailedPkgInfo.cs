@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Yaapm.RPC.Structs;
 
-public struct DetailedPkgInfo
+public sealed class DetailedPkgInfo
 {
     [JsonPropertyName("ID")]
     public int Id { get; set; }
@@ -24,8 +24,8 @@ public struct DetailedPkgInfo
     public ulong FirstSubmitted { get; set; }
     [JsonPropertyName("LastModified")]
     public ulong LastModified { get; set; }
-    [JsonPropertyName("OutOfDate")]
-    public string? OutOfDate { get; set; }
+    // [JsonPropertyName("OutOfDate")]
+    // public string? OutOfDate { get; set; }
     [JsonPropertyName("Version")]
     public string Version { get; set; }
     [JsonPropertyName("URLPath")]

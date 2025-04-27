@@ -3,7 +3,7 @@ using Yaapm.RPC.Structs;
 
 namespace Testing;
 
-public class RpcEngineTests
+public class RpcEngineTest
 {
     
     private readonly RpcEngine _engine = new();
@@ -28,6 +28,7 @@ public class RpcEngineTests
 
     [Theory]
     [InlineData("zen-browser")]
+    [InlineData("sent")]
     public async Task Info_ReturnsInfoResult(string searchTerm)
     {
         var result = await _engine.Info(searchTerm);
@@ -40,6 +41,7 @@ public class RpcEngineTests
     {
         var result = await _engine.Info([(string)"zen-browser", (string)"packettracer"]);
         Assert.NotNull(result);
+        Assert.Equal(2, result.ResultCount);
         Assert.Equal(typeof(InfoResult), result.GetType());
     }
 }

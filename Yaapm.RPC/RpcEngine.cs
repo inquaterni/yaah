@@ -19,6 +19,13 @@ public class RpcEngine: IDisposable
     {
         Dispose(false);
     }
+    
+    //=================[Helpers]=================//
+    private static string ConstructUrlArgs(string[] args)
+    {
+        var result = args.Aggregate("", (current, arg) => current + "arg[]=" + arg + "&");
+        return result[..^1];
+    }
 
     //=================[Package Search]=================//
     
@@ -80,7 +87,7 @@ public class RpcEngine: IDisposable
     /// <returns>Get detailed information for multiple packages</returns>
     public async Task<InfoResult?> Info(string[] arg)
     {
-        var response = await _client.GetAsync($"info?arg[]={string.Join("arg[]=", arg)}");
+        var response = await _client.GetAsync($"info?{ConstructUrlArgs(arg)}");
         response.EnsureSuccessStatusCode();
         return JsonSerializer.Deserialize<InfoResult>(await response.Content.ReadAsStreamAsync());
     }

@@ -25,6 +25,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Yaapm.Database\Yaapm.Database.csproj" />
+      <ProjectReference Include="..\Yaapm.DReS\Yaapm.DReS.csproj" />
       <ProjectReference Include="..\Yaapm.RPC\Yaapm.RPC.csproj" />
     </ItemGroup>
 

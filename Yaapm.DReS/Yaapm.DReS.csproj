@@ -7,4 +7,13 @@
         <RootNamespace>DependResolv</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="QuikGraph" Version="2.5.0" />
+      <PackageReference Include="QuikGraph.Graphviz" Version="2.5.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Yaapm.RPC\Yaapm.RPC.csproj" />
+    </ItemGroup>
+
 </Project>

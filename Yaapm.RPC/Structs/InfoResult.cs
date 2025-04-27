@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Yaapm.RPC.Structs;
 
-public struct InfoResult
+public sealed class InfoResult
 {
     [JsonPropertyName("resultcount")]
     public int ResultCount { get; set; }

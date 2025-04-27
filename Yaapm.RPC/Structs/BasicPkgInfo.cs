@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace Yaapm.RPC.Structs;
 
-public struct BasicPkgInfo
+public sealed class BasicPkgInfo
 {
     [JsonPropertyName("ID")]
     public int Id { get; set; }
