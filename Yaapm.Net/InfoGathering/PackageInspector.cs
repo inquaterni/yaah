@@ -1,5 +1,6 @@
 using System.Collections;
-using Yaapm.RPC.Structs;
+using Yaapm.Net.Rpc;
+using Yaapm.Net.Structs;
 
 namespace Yaapm.RPC.InfoGathering;
 

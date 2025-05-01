@@ -1,7 +1,7 @@
 using System.Text.Json;
-using Yaapm.RPC.Structs;
+using Yaapm.Net.Structs;
 
-namespace Yaapm.RPC;
+namespace Yaapm.Net.Rpc;
 
 public class RpcEngine: IDisposable
 {

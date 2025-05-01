@@ -1,10 +1,11 @@
 using System.Collections;
 using QuikGraph;
-using Yaapm.RPC.Structs;
+using QuikGraph.Algorithms;
+using Yaapm.Net.Structs;
 
 namespace Yaapm.DReS;
 
-public class GraphBuilder
+public static class Graph
 {
 
     private static IEnumerable<string> ConcatNullable(IEnumerable<string>? first, IEnumerable<string>? second)
@@ -18,7 +19,7 @@ public class GraphBuilder
         };
     }
     
-    public AdjacencyGraph<string, Edge<string>> BuildFor(string pkgExplicit, Hashtable table)
+    public static AdjacencyGraph<string, Edge<string>> BuildFor(string pkgExplicit, Hashtable table)
     {
         
         var pkgInfo = table[pkgExplicit] as DetailedPkgInfo;
@@ -46,5 +47,16 @@ public class GraphBuilder
             }
         }
         return result;
+    }
+
+    public static bool TryGetInstallOrder(AdjacencyGraph<string, Edge<string>> graph, out IEnumerable<string> order)
+    {
+        if (graph.IsDirectedAcyclicGraph())
+        {
+            order = graph.SourceFirstTopologicalSort().Reverse();
+            return true;
+        }
+        order = [];
+        return false;
     }
 }

@@ -7,4 +7,8 @@
         <RootNamespace>RpcEngine</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Folder Include="Git\" />
+    </ItemGroup>
+
 </Project>

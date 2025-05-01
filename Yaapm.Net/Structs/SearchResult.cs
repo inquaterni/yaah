@@ -1,15 +1,15 @@
 using System.Text.Json.Serialization;
 
-namespace Yaapm.RPC.Structs;
+namespace Yaapm.Net.Structs;
 
-public sealed class InfoResult
+public sealed class SearchResult
 {
     [JsonPropertyName("resultcount")]
-    public int ResultCount { get; set; }
+    public uint ResultCount { get; set; }
     [JsonPropertyName("type")]
     public string Type { get; set; }
     [JsonPropertyName("version")]
     public int Version { get; set; }
     [JsonPropertyName("results")]
-    public DetailedPkgInfo[] Results { get; set; }
+    public BasicPkgInfo[] Results { get; set; }
 }

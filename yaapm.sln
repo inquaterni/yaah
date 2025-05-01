@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yaapm.CLI", "Yaapm.CLI\Yaapm.CLI.csproj", "{BAA394EF-50F0-4C4F-AC28-45FB56D54072}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yaapm.RPC", "Yaapm.RPC\Yaapm.RPC.csproj", "{D96DF5F0-D91C-4AB6-A683-1F6385C65B55}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yaapm.Net", "Yaapm.Net\Yaapm.Net.csproj", "{D96DF5F0-D91C-4AB6-A683-1F6385C65B55}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yaapm.DReS", "Yaapm.DReS\Yaapm.DReS.csproj", "{74BB54D2-3009-4A4F-890B-8CAA8656D21C}"
 EndProject

@@ -1,5 +1,5 @@
-using Yaapm.RPC;
-using Yaapm.RPC.Structs;
+using Yaapm.Net.Rpc;
+using Yaapm.Net.Structs;
 
 namespace Testing;
 

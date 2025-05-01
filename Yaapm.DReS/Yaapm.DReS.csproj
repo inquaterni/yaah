@@ -13,7 +13,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Yaapm.RPC\Yaapm.RPC.csproj" />
+      <ProjectReference Include="..\Yaapm.Net\Yaapm.Net.csproj" />
     </ItemGroup>
 
 </Project>

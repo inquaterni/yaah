@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Yaapm.RPC.Structs;
+namespace Yaapm.Net.Structs;
 
 public sealed class DetailedPkgInfo
 {
