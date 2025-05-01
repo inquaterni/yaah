@@ -1,2 +1,2 @@
 makepkg --printsrcinfo >.SRCINFO
-makepkg --noconfirm -si
+makepkg --asroot --noconfirm -si
