@@ -1,5 +1,4 @@
-#!/usr/bin/env bash
-# set -euo pipefail
+set -euo pipefail
 
 # If the build user doesn't exist, create it and re-exec the script under that user
 if [ "$(id -u)" -eq 0 ]; then
