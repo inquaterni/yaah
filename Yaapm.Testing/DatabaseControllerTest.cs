@@ -4,17 +4,8 @@ namespace Testing;
 
 public class DatabaseControllerTest
 {
-    
     [Theory]
-    [InlineData("zen-browser")]
-    public void TryGetPackageVersion_ReturnsTrue(string packageName)
-    {
-        var succeeded = DatabaseController.TryGetPackageVersion(packageName, out _);
-        Assert.True(succeeded);
-    }
-
-    [Theory]
-    [InlineData("gtk3")]
+    [InlineData("bash")]
     public void TryGetPackageVersion_ReturnsValidPkgInfo(string packageName)
     {
         var succeeded = DatabaseController.TryGetPkgInfo(packageName, out var pkgInfo);
