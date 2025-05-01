@@ -1,85 +1,50 @@
+using System.Collections;
 using QuikGraph;
-using QuikGraph.Algorithms;
-using Yaapm.RPC;
 using Yaapm.RPC.Structs;
 
 namespace Yaapm.DReS;
 
 public class GraphBuilder
 {
-    private readonly RpcEngine _engine = new();
 
-    private InfoResult FetchDeps(string[] deps)
+    private static IEnumerable<string> ConcatNullable(IEnumerable<string>? first, IEnumerable<string>? second)
     {
-        var res = _engine.Info(deps).Result;
-        return res ?? new InfoResult();
+        return first switch
+        {
+            null when second is null => [],
+            not null when second is null => first,
+            null => second,
+            not null => first.Concat(second)
+        };
     }
-
-    private static T[] ArrayConcat<T>(T[]? a, T[]? b)
+    
+    public AdjacencyGraph<string, Edge<string>> BuildFor(string pkgExplicit, Hashtable table)
     {
-        if (a is null && b is null)
-        {
-            throw new ArgumentException("Both arrays are null.");
-        }
         
-        if (a is null && b is not null)
-        {
-            return b;
-        }
+        var pkgInfo = table[pkgExplicit] as DetailedPkgInfo;
+        var result = new AdjacencyGraph<string, Edge<string>>();
+        if (pkgInfo is null) return result;
 
-        if (b is null && a is not null)
+        var stack = new Stack<string>();
+        stack.Push(pkgInfo.Name);
+        while (stack.Count != 0)
         {
-            return a;
-        }
-
-        return a!.Concat(b!).ToArray();
-    }
-
-    private void BuildGraph(DetailedPkgInfo pkg, InfoResult deps, ref List<string> cache, ref AdjacencyGraph<string, Edge<string>> graph)
-    {
-        if (deps.ResultCount == 0) return; 
-        Console.WriteLine($"\nFetching deps of {pkg.Name}");
-        Console.WriteLine($"Deps are: {string.Join(", ", deps!.Results.Select(x => x.Name))}");
-        
-        foreach (var dep in deps.Results)
-        {
-            Console.WriteLine($"Processing dep {dep.Name}");
-            Console.WriteLine(string.Join(", ", cache));
-            if (cache.Contains(dep.Name)) continue;
-            cache.Add(dep.Name);
-            Console.WriteLine($"Adding vertexes {pkg.Name} & {dep.Name}");
-            graph.AddVertex(pkg.Name);
-            graph.AddVertex(dep.Name);
-            Console.WriteLine($"Adding edge between {pkg.Name} & {dep.Name}");
-            graph.AddEdge(new Edge<string>(pkg.Name, dep.Name));
+            var current = (table[stack.Pop()] as DetailedPkgInfo)!;
+            result.AddVertex(current.Name);
             
-            Console.WriteLine($"Fetching deps for {dep.Name}");
-            BuildGraph(dep, FetchDeps(ArrayConcat(dep.Depends, dep.MakeDepends)), ref cache, ref graph);
+            var temp = ConcatNullable(current.Depends, current.MakeDepends);
+            var allDepends = ConcatNullable(temp, current.CheckDepends);
+            foreach (var depend in allDepends)
+            {
+                if (!table.ContainsKey(depend)) continue;
+                result.AddVertex(depend);
+                
+                if (result.ContainsEdge(current.Name, depend)) continue;
+                result.AddEdge(new Edge<string>(current.Name, depend));
+                
+                stack.Push(depend);
+            }
         }
-    }
-
-    public AdjacencyGraph<string, Edge<string>>? BuildFor(string name)
-    {
-        List<string> cache = [];
-        var info = _engine.Info(name).Result;
-
-        var explicitResult = info?.Results.FirstOrDefault(pkgInfo => pkgInfo.Name == name);
-        if (explicitResult == null) return null;
-        
-        var graph = new AdjacencyGraph<string, Edge<string>>();
-        graph.AddVertex(explicitResult.Name);
-        var deps = FetchDeps(ArrayConcat(explicitResult.Depends, explicitResult.MakeDepends));
-        if (deps == null) return null;
-        
-        BuildGraph(explicitResult, deps, ref cache, ref graph);
-        
-        return graph;
-    }
-
-    public static bool TryGetDepsInstallOrder(AdjacencyGraph<string, Edge<string>> graph, out IEnumerable<string>? order)
-    {
-        order = graph.IsDirectedAcyclicGraph() ? graph.TopologicalSort() : null;
-        
-        return graph.IsDirectedAcyclicGraph();
+        return result;
     }
 }

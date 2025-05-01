@@ -1,5 +1,7 @@
 ﻿using QuikGraph;
+using QuikGraph.Algorithms;
 using QuikGraph.Graphviz.Dot;
+using Yaapm.RPC.InfoGathering;
 
 namespace Yaapm.CLI;
 using DReS;
@@ -9,21 +11,23 @@ internal static class Program
     private static void Main(string[] args)
     {
         var builder = new GraphBuilder();
-        
-        Console.WriteLine("AUR Explicit(1): iup");
-        var graph = builder.BuildFor("iup");
-        
+        var inspector = new PackageInspector();
 
-        if (graph != null && GraphBuilder.TryGetDepsInstallOrder(graph, out var deps))
-        {
-            Console.WriteLine($"AUR Dependencies ({deps.Count()}): " + string.Join(", ", deps));
-        }
+        var table = inspector.GatherPackageMetadata("iup").Result;
+        var adjacencyGraph = builder.BuildFor("iup", table);
+        
+        Console.WriteLine("Correct order: " + string.Join(", ", adjacencyGraph.TopologicalSort().Reverse()) + ";");
 
-        var alg = new QuikGraph.Graphviz.GraphvizAlgorithm<string, Edge<string>>(graph)
+        var alg = new QuikGraph.Graphviz.GraphvizAlgorithm<string, Edge<string>>(adjacencyGraph)
         {
             ImageType = GraphvizImageType.PlainText
         };
+        
+        alg.FormatVertex += (_, eventArgs) =>
+        {
+            eventArgs.VertexFormat.Label = eventArgs.Vertex;
+        };
 
-        alg.Generate(new DReS.Optional.FileDotEngine(), "/home/mmatz/csharp/yaapm/doc/zbb.dot");
+        alg.Generate(new DReS.Optional.FileDotEngine(), "/home/mmatz/csharp/yaapm/doc/iup_depends.dot");
     }
 }

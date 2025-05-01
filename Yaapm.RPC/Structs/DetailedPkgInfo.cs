@@ -37,13 +37,13 @@ public sealed class DetailedPkgInfo
     [JsonPropertyName("Licence")]
     public string[] Licence { get; set; }
     [JsonPropertyName("Depends")]
-    public string[] Depends { get; set; }
+    public string[]? Depends { get; set; }
     [JsonPropertyName("MakeDepends")]
-    public string[] MakeDepends { get; set; }
+    public string[]? MakeDepends { get; set; }
     [JsonPropertyName("OptDepends")]
-    public string[] OptDepends { get; set; }
+    public string[]? OptDepends { get; set; }
     [JsonPropertyName("CheckDepends")]
-    public string[] CheckDepends { get; set; }
+    public string[]? CheckDepends { get; set; }
     [JsonPropertyName("Provides")]
     public string[] Provides { get; set; }
     [JsonPropertyName("Conflicts")]
