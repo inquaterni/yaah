@@ -1,14 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandLineInterface", "CommandLineInterface\CommandLineInterface.csproj", "{BAA394EF-50F0-4C4F-AC28-45FB56D54072}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yaapm.CLI", "Yaapm.CLI\Yaapm.CLI.csproj", "{BAA394EF-50F0-4C4F-AC28-45FB56D54072}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RpcEngine", "RpcEngine\RpcEngine.csproj", "{D96DF5F0-D91C-4AB6-A683-1F6385C65B55}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yaapm.Net", "Yaapm.Net\Yaapm.Net.csproj", "{D96DF5F0-D91C-4AB6-A683-1F6385C65B55}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DependResolv", "DependResolv\DependResolv.csproj", "{74BB54D2-3009-4A4F-890B-8CAA8656D21C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yaapm.DReS", "Yaapm.DReS\Yaapm.DReS.csproj", "{74BB54D2-3009-4A4F-890B-8CAA8656D21C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database", "Database\Database.csproj", "{E504377A-366F-4B98-83EA-6CF7A337352B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yaapm.Database", "Yaapm.Database\Yaapm.Database.csproj", "{E504377A-366F-4B98-83EA-6CF7A337352B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Testing", "Testing\Testing.csproj", "{FA63DA01-973A-4C3B-9A50-8FE4F5455DEC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yaapm.Testing", "Yaapm.Testing\Yaapm.Testing.csproj", "{FA63DA01-973A-4C3B-9A50-8FE4F5455DEC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -8,4 +8,10 @@
         <RootNamespace>yaapm</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Yaapm.Database\Yaapm.Database.csproj" />
+      <ProjectReference Include="..\Yaapm.DReS\Yaapm.DReS.csproj" />
+      <ProjectReference Include="..\Yaapm.Net\Yaapm.Net.csproj" />
+    </ItemGroup>
+
 </Project>
