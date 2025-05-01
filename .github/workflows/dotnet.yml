@@ -15,9 +15,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Checkout
+      uses: actions/checkout@v4
     - name: Setup environment
-    - uses: actions/checkout@v4
-    - uses: sharunkumar/archlinux-docker-action@v1
+      uses: sharunkumar/archlinux-docker-action@v1
       with:
           script: .github/workflows/build.sh
     - name: Setup .NET
