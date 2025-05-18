@@ -28,9 +28,9 @@ internal class Options
     [Option('g', "graph-serialization", HelpText = "Enable graph serialization")]
     public bool GraphSerialization { get; set; }
     
-    [Value(0, MetaName = "packages", Required = true, HelpText = "Packages to operate on", Min = 1)]
+    [Value(0, MetaName = "parameters", Required = true, HelpText = "Packages to operate on", Min = 1)]
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-    public IEnumerable<string> Packages { get; set; }
+    public IEnumerable<string> Parameters { get; set; }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 }
 
@@ -43,29 +43,58 @@ internal static class Program
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
     private static readonly LoggingConfiguration Config = new();
 
+    private static T? Input<T>(string prompt, T? defaultValue = default, Func<string?, T>? filterFunc = null)
+    {
+        Console.Write(prompt);
+        var input = Console.ReadLine();
+        var result = defaultValue;
+        try
+        {
+            result = filterFunc != null ? filterFunc(input) : (T?)Convert.ChangeType(input, typeof(T));
+        }
+        catch (Exception e) when (e is FormatException or OverflowException or InvalidCastException)
+        {
+            Logger.Warn($"Conversion failed {e.GetType().Name}: {e.Message}");
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e);
+        }
+        
+        return result;
+    }
+
     private static void Main(string[] args)
     {
         
         // var logFile = new NLog.Targets.FileTarget("logfile") {FileName = "log.txt"};
-        var logConsole = new NLog.Targets.ConsoleTarget("logconsole");
+        var target = new NLog.Targets.ColoredConsoleTarget("console")
+        {
+            Layout = "[${longdate}|${level:uppercase=true}] ${logger}: ${message}"
+        };
+        Config.AddTarget(target);
+        Config.AddRule(LogLevel.Trace, LogLevel.Info, target);
         
-        // configuration.AddRule(LogLevel.Trace, LogLevel.Fatal, logFile);
-        // Config.AddRule(LogLevel.Trace, LogLevel.Fatal, logConsole);
-        
-        Config.Variables["logLevel"] = "Info";
         LogManager.Configuration = Config;
-        LogManager.ReconfigExistingLoggers();
         
         Parser.Default.ParseArguments<Options>(args)
             .WithParsed(opts =>
             {
+                if (opts.Debug)
+                {
+                    Config.AddRule(LogLevel.Debug, LogLevel.Fatal, target);
+                    LogManager.ReconfigExistingLoggers();
+                }
+                
+                Logger.Debug($"Parameters: {string.Join(", ", opts.Parameters.AsParallel().Select(x => "'" + x + "'"))}");
+                
                 if (opts.Sync)
                 {
                     if (opts.Search)
                     {
-                        if (opts.Packages.ToArray().Length == 1)
+                        if (opts.Parameters.ToArray().Length == 1)
                         {
-                            Search(opts.Packages.First());
+                            Search(opts.Parameters.First());
                         }
                         else
                         {
@@ -74,20 +103,14 @@ internal static class Program
                     }
                     else
                     {
-                        Install(opts.Packages.ToArray());
+                        Install(opts.Parameters.ToArray());
                     }
                 }
-
-                if (!opts.Debug) return;
-                
-                Config.Variables["logLevel"] = "Debug";
-                LogManager.Configuration = Config;
-                LogManager.ReconfigExistingLoggers();
                 
                 if (!opts.GraphSerialization || opts.Sync || opts.Search) return;
-                if (opts.Packages.ToArray().Length == 2)
+                if (opts.Parameters.ToArray().Length == 2)
                 {
-                    SerializeGraph(opts.Packages.First(), opts.Packages.Skip(1).First());
+                    SerializeGraph(opts.Parameters.First(), opts.Parameters.Skip(1).First());
                 }
             })
             .WithNotParsed(errs =>
@@ -125,47 +148,62 @@ internal static class Program
     private static void Install(string[] packages)
     {
         var flags = "-si";
-        List<string> pkgExplicit = [];
-        var db = Db.GetLocalDb();
+        List<BasicPkgInfo> pkgExplicit = [];
         
         Parallel.ForEachAsync(packages, async (pkg, token) =>
         {
             var pkgs = await Engine.Search(pkg, token: token);
-            if (pkgs is null || pkgs.ResultCount == 0 || !pkgs.Results.Any(x => x.Name.Equals(pkg)))
+            if (pkgs is null || pkgs.ResultCount == 0 || !pkgs.Results.AsParallel().Any(x => x.Name.Equals(pkg)))
             {
                 Logger.Debug($"Package '{pkg}' not found");
                 return;
             }
-            pkgExplicit.Add(pkg);
-        });
-        
-        Console.WriteLine($"AUR Explicit({pkgExplicit.Count}): {string.Join(", ", pkgExplicit)}");
-        
-        Console.WriteLine("Proceed with installation? [Y/n]");
-        if (Console.Read().Equals('n'))
+            pkgExplicit.Add(pkgs.Results.AsParallel().Where(x => x.Name.Equals(pkg)).First());
+        }).Wait();
+
+        if (pkgExplicit.Count == 0)
         {
-            Environment.Exit(0);
+            Logger.Fatal("No packages found");
+            return;
         }
-        Console.WriteLine("Clean build? [Y/n]");
-        flags += Console.Read().ToString().Equals("n", StringComparison.CurrentCultureIgnoreCase) ? "" : "C";
-        Console.WriteLine("Remove make dependencies after installation? [y/N]");
-        flags += Console.Read().ToString().Equals("y", StringComparison.CurrentCultureIgnoreCase) ? "r" : "";
+        
+        Console.WriteLine($"AUR Explicit({pkgExplicit.Count}): {string.Join(", ", pkgExplicit.AsParallel().Select(x => $"{x.Name}-{x.Version}"))}");
+        
+        flags += Input("Clean build? [Y/n]\n", "c", input =>
+        {
+            if (input != null && input.Equals("n", StringComparison.OrdinalIgnoreCase)) return string.Empty;
+            return "c";
+        });
+        Logger.Debug($"Flags updated: {flags}");
+
+        flags += Input("Remove make dependencies after installation? [y/N]\n", string.Empty, input =>
+        {
+            if (input != null && input.Equals("y", StringComparison.OrdinalIgnoreCase)) return "r";
+            return string.Empty;
+        });
+        Logger.Debug($"Flags updated: {flags}");
 
         var inspector = new PackageInspector(Db.GetLocalDb());
-        var table = inspector.GatherPackageInfo(pkgExplicit).Result;
+        var table = inspector.GatherPackageInfo(pkgExplicit.Select(x => x.Name)).Result;
 
-        var graph = Graph.BuildFor(pkgExplicit, table);
+        var graph = Graph.BuildFor(pkgExplicit.AsParallel().Select(x => x.Name), table);
 
         if (!graph.IsDirectedAcyclicGraph())
         {
+            Logger.Debug("Graph contains cycles, exiting...");
             Console.WriteLine("Cannot resolve dependencies, manual intervention is required");
             Environment.Exit(4);
         }
-        
-        if (!Directory.Exists(CachePath)) Directory.CreateDirectory(CachePath);
+
+        if (!Directory.Exists(CachePath))
+        {
+            Logger.Debug($"Creating cache directory: '{CachePath}'");
+            Directory.CreateDirectory(CachePath);
+        }
         Directory.SetCurrentDirectory(CachePath);
 
         var installOrder = Graph.GetInstallOrder(graph).ToArray();
+        Logger.Debug($"Install order: {string.Join(", ", installOrder)}");
         
         Parallel.ForEach(installOrder, pkg =>
         {
@@ -180,6 +218,7 @@ internal static class Program
         {
             if (!Directory.Exists(pkg))
             {
+                Logger.Fatal($"Package directory {Path.Combine(CachePath, pkg)} does not exist");
                 Console.WriteLine($"ERROR: Could not find installation directory for pkg '{pkg}'");
                 Environment.Exit(-1);
             }
@@ -191,29 +230,23 @@ internal static class Program
     private static void SerializeGraph(string package, string path)
     {
         var dir = path[..(path.LastIndexOf('/') + 1)];
+        Logger.Debug($"Serializing graph to '{dir}'");
         if (!Directory.Exists(dir))
         {
+            Logger.Fatal("Directory not found, exiting...");
             Console.WriteLine($"Directory not found: '{dir}'");
+            return;
         }
 
         var inspector = new PackageInspector(Db.GetLocalDb());
         var table = inspector.GatherPackageInfo(package).Result;
 
         var graph = Graph.BuildFor(package, table);
-
-        if (!graph.IsDirectedAcyclicGraph())
-        {
-            Console.WriteLine("Cannot resolve dependencies, manual intervention is required");
-            Environment.Exit(4);
-        }
-        
         var algorithm = new QuikGraph.Graphviz.GraphvizAlgorithm<string, Edge<string>>(graph);
-        
         algorithm.FormatVertex += (_, args) =>
         {
             args.VertexFormat.Label = args.Vertex;
         };
-        
         algorithm.Generate(new FileDotEngine(), path);
     }
 }

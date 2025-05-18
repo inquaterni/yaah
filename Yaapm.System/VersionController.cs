@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 
 namespace Yaapm.System;
 
-public partial class VersionController
+public static partial class VersionController
 {
     [GeneratedRegex("^(?<name>.+?)(?<op>>=|<=|=|>|<)(?<version>.+)$")]
     private static partial Regex PkgNameVersionRegex();

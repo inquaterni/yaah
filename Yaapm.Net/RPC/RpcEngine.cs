@@ -1,13 +1,15 @@
 using System.Text.Json;
+using NLog;
+using NLog.Config;
 using Yaapm.Net.Structs;
 
 namespace Yaapm.Net.Rpc;
 
 public class RpcEngine: IDisposable
 {
-    private readonly HttpClient _client;
-    
     private const string BaseUrl = "https://aur.archlinux.org/rpc/v5/";
+    private readonly HttpClient _client;
+    private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
 
     public RpcEngine()
     {
@@ -28,7 +30,9 @@ public class RpcEngine: IDisposable
     /// <returns>Encoded string</returns>
     private static string ConstructUrlArgs(IEnumerable<string> args)
     {
+        Logger.Debug($"Input args: {string.Join(", ", args)}");
         var result = args.Aggregate("", (current, arg) => current + "arg[]=" + arg + "&");
+        Logger.Debug($"Encoded args: {result[..^1]}");
         return result[..^1];
     }
 
@@ -44,7 +48,9 @@ public class RpcEngine: IDisposable
     /// <exception cref="JsonException"></exception>
     public async Task<SearchResult?> Search(string arg, string by = "name-desc", CancellationToken token = default)
     {
+        Logger.Debug($"Sending GET request to URI: search/{arg}?by={by}");
         var response = await _client.GetAsync($"search/{arg}?by={by}", token);
+        Logger.Debug($"Response status: {response.StatusCode} ({response.StatusCode:D})");
         response.EnsureSuccessStatusCode();
         return await JsonSerializer.DeserializeAsync<SearchResult>(await response.Content.ReadAsStreamAsync(token), cancellationToken: token);
     }
@@ -59,7 +65,9 @@ public class RpcEngine: IDisposable
     /// <exception cref="JsonException"></exception>
     public async Task<string[]?> Suggest(string arg, CancellationToken token = default)
     {
+        Logger.Debug($"Sending GET request to URI: suggest/{arg}");
         var response = await _client.GetAsync($"suggest/{arg}", token);
+        Logger.Debug($"Response status: {response.StatusCode} ({response.StatusCode:D})");
         response.EnsureSuccessStatusCode();
         return await JsonSerializer.DeserializeAsync<string[]>(await response.Content.ReadAsStreamAsync(token), cancellationToken: token);
     }
@@ -74,7 +82,9 @@ public class RpcEngine: IDisposable
     /// <exception cref="JsonException"></exception>
     public async Task<string[]?> SuggestPkgbase(string arg, CancellationToken token = default)
     {
+        Logger.Debug($"Sending GET request to URI: suggest-pkgbase/{arg}");
         var response = await _client.GetAsync($"suggest-pkgbase/{arg}", token);
+        Logger.Debug($"Response status: {response.StatusCode} ({response.StatusCode:D})");
         response.EnsureSuccessStatusCode();
         return await JsonSerializer.DeserializeAsync<string[]>(await response.Content.ReadAsStreamAsync(token), cancellationToken: token);
     }
@@ -90,7 +100,9 @@ public class RpcEngine: IDisposable
     /// <exception cref="JsonException"></exception>
     public async Task<InfoResult?> Info(string arg, CancellationToken token = default)
     {
+        Logger.Debug($"Sending GET request to URI: info/{arg}");
         var response = await _client.GetAsync($"info/{arg}", token);
+        Logger.Debug($"Response status: {response.StatusCode} ({response.StatusCode:D})");
         response.EnsureSuccessStatusCode();
         return await JsonSerializer.DeserializeAsync<InfoResult>(await response.Content.ReadAsStreamAsync(token), cancellationToken: token);
     }
@@ -105,7 +117,10 @@ public class RpcEngine: IDisposable
     /// <exception cref="JsonException"></exception>
     public async Task<InfoResult?> Info(IEnumerable<string> arg, CancellationToken token = default)
     {
-        var response = await _client.GetAsync($"info?{ConstructUrlArgs(arg)}", token);
+        var encodedArgs = ConstructUrlArgs(arg);
+        Logger.Debug($"Sending GET request to URI: info?{encodedArgs}");
+        var response = await _client.GetAsync($"info?{encodedArgs}", token);
+        Logger.Debug($"Response status: {response.StatusCode} ({response.StatusCode:D})");
         response.EnsureSuccessStatusCode();
         return await JsonSerializer.DeserializeAsync<InfoResult>(await response.Content.ReadAsStreamAsync(token), cancellationToken: token);
     }

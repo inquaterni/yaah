@@ -7,13 +7,12 @@ public class DatabaseController
     private const string RootPath = "/";
     private const string DbPath = "/var/lib/pacman";
 
-    private int _err;
     private readonly IntPtr _alpmHandle;
 
     public DatabaseController()
     {
-        _alpmHandle = alpm_initialize(RootPath, DbPath, out _err);
-        if (_err != 0)
+        _alpmHandle = alpm_initialize(RootPath, DbPath, out var err);
+        if (err != 0)
         {
             throw new Exception("alpm_initialize failed");
         }
