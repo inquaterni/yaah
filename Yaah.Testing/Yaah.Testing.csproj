@@ -25,9 +25,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Yaapm.System\Yaapm.System.csproj" />
-      <ProjectReference Include="..\Yaapm.DReS\Yaapm.DReS.csproj" />
-      <ProjectReference Include="..\Yaapm.Net\Yaapm.Net.csproj" />
+      <ProjectReference Include="..\Yaah.System\Yaah.System.csproj" />
+      <ProjectReference Include="..\Yaah.DReS\Yaah.DReS.csproj" />
+      <ProjectReference Include="..\Yaah.Net\Yaah.Net.csproj" />
     </ItemGroup>
 
 </Project>

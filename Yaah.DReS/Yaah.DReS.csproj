@@ -14,7 +14,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Yaapm.Net\Yaapm.Net.csproj" />
+      <ProjectReference Include="..\Yaah.Net\Yaah.Net.csproj" />
     </ItemGroup>
 
 </Project>
