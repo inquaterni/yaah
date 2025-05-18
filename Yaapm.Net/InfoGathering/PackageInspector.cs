@@ -49,7 +49,7 @@ public class PackageInspector(IntPtr db)
             var pkgPtr = DatabaseController.GetPackage(db, pkg.Name);
             var pkgVersion = DatabaseController.GetPackageVersion(pkgPtr);
             Logger.Debug("Compairing requred version & DB version");
-            databaseResult = DatabaseController.VersionCompare(version, pkgVersion);
+            databaseResult = DatabaseController.VersionComparison(version, pkgVersion);
             Logger.Debug($"Package version: {pkgVersion}, cmp result: {databaseResult}");
         }
         catch (Exception e)
@@ -59,7 +59,7 @@ public class PackageInspector(IntPtr db)
         }
 
         Logger.Debug("Compairing requred version & remote version");
-        var remoteResult = DatabaseController.VersionCompare(version, pkg.Version);
+        var remoteResult = DatabaseController.VersionComparison(version, pkg.Version);
         Logger.Debug($"Package version: {pkg.Version}, cmp result: {remoteResult}");
         return op switch
         {

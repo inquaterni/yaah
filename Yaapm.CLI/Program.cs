@@ -178,7 +178,10 @@ internal static class Program
 
         flags += Input("Remove make dependencies after installation? [y/N]\n", string.Empty, input =>
         {
-            if (input != null && input.Equals("y", StringComparison.OrdinalIgnoreCase)) return "r";
+            if (input != null && input.Equals("y", StringComparison.OrdinalIgnoreCase))
+            {
+                return "r";
+            }
             return string.Empty;
         });
         Logger.Debug($"Flags updated: {flags}");
