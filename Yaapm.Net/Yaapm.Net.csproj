@@ -8,7 +8,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Git\" />
+      <ProjectReference Include="..\Yaapm.System\Yaapm.System.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="NLog" Version="5.4.0" />
     </ItemGroup>
 
 </Project>

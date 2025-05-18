@@ -1,10 +1,12 @@
-using Yaapm.RPC.InfoGathering;
+using Yaapm.Net.InfoGathering;
+using Yaapm.System.Database;
 
 namespace Testing;
 
 public class PackageInspectorTest
 {
-    private readonly PackageInspector _inspector = new();
+    private static readonly DatabaseController Database = new();
+    private readonly PackageInspector _inspector = new(Database.GetLocalDb());
 
     [Theory]
     [InlineData("iup", new[]
@@ -24,7 +26,7 @@ public class PackageInspectorTest
     })]
     public async Task GetPackageInfo(string pkg, IEnumerable<string> expected)
     {
-        var result = await _inspector.GatherPackageMetadata(pkg);
+        var result = await _inspector.GatherPackageInfo(pkg);
         
         var keysSet = new HashSet<string>(result.Keys.Cast<string>());
         var expectedSet = new HashSet<string>(expected);

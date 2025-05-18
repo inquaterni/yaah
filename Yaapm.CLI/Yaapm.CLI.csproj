@@ -9,9 +9,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Yaapm.Database\Yaapm.Database.csproj" />
+      <ProjectReference Include="..\Yaapm.System\Yaapm.System.csproj" />
       <ProjectReference Include="..\Yaapm.DReS\Yaapm.DReS.csproj" />
       <ProjectReference Include="..\Yaapm.Net\Yaapm.Net.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="CommandLineParser" Version="2.9.1" />
+      <PackageReference Include="NLog" Version="5.4.0" />
     </ItemGroup>
 
 </Project>

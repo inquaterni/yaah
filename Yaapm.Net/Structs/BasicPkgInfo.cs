@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
 namespace Yaapm.Net.Structs;
 
@@ -25,7 +26,7 @@ public sealed class BasicPkgInfo
     [JsonPropertyName("LastModified")]
     public ulong LastModified { get; set; }
     [JsonPropertyName("OutOfDate")]
-    public string? OutOfDate { get; set; }
+    public long? OutOfDate { get; set; }
     [JsonPropertyName("Version")]
     public string Version { get; set; }
     [JsonPropertyName("URLPath")]
