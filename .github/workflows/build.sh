@@ -1,1 +1,1 @@
-sudo pacman -S --needed base-devel
+sudo pacman -S --no-confirm --needed base-devel
