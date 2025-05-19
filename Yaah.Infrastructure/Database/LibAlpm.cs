@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace Yaapm.System.Database;
+namespace Yaah.System.Database;
 
 public partial class LibAlpm
 {

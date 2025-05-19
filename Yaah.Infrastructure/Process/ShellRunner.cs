@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace Yaapm.System.Process;
+namespace Yaah.System.Process;
 
 /// <summary>
 /// Helper class for running shell commands

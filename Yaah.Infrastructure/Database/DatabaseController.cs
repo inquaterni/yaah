@@ -1,7 +1,7 @@
 using NLog;
-using static Yaapm.System.Database.LibAlpm;
+using static Yaah.System.Database.LibAlpm;
 
-namespace Yaapm.System.Database;
+namespace Yaah.System.Database;
 
 public class DatabaseController: IDisposable
 {

@@ -4,15 +4,15 @@ using NLog;
 using NLog.Config;
 using QuikGraph;
 using QuikGraph.Algorithms;
-using Yaapm.DReS;
-using Yaapm.DReS.Optional;
-using Yaapm.Net.InfoGathering;
-using Yaapm.Net.Rpc;
-using Yaapm.Net.Structs;
-using Yaapm.System.Database;
-using Yaapm.System.Process;
+using Yaah.DReS;
+using Yaah.DReS.Optional;
+using Yaah.Net.InfoGathering;
+using Yaah.Net.Rpc;
+using Yaah.Net.Structs;
+using Yaah.System.Database;
+using Yaah.System.Process;
 
-namespace Yaapm.CLI;
+namespace Yaah.CLI;
 
 internal class Options
 {

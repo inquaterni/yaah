@@ -1,7 +1,7 @@
 using QuikGraph.Graphviz;
 using QuikGraph.Graphviz.Dot;
 
-namespace Yaapm.DReS.Optional;
+namespace Yaah.DReS.Optional;
 
 public class FileDotEngine : IDotEngine
 {    

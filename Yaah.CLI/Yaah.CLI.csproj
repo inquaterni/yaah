@@ -10,7 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Yaah.System\Yaah.System.csproj" />
+      <ProjectReference Include="..\Yaah.Infrastructure\Yaah.Infrastructure.csproj" />
       <ProjectReference Include="..\Yaah.DReS\Yaah.DReS.csproj" />
       <ProjectReference Include="..\Yaah.Net\Yaah.Net.csproj" />
     </ItemGroup>

@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace Yaapm.System;
+namespace Yaah.System;
 
 public static partial class VersionController
 {

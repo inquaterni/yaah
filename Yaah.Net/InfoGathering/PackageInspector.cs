@@ -1,12 +1,12 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using NLog;
-using Yaapm.Net.Rpc;
-using Yaapm.Net.Structs;
-using Yaapm.System;
-using Yaapm.System.Database;
+using Yaah.Net.Rpc;
+using Yaah.Net.Structs;
+using Yaah.System;
+using Yaah.System.Database;
 
-namespace Yaapm.Net.InfoGathering;
+namespace Yaah.Net.InfoGathering;
 
 public class PackageInspector
 {
@@ -195,7 +195,7 @@ public class PackageInspector
     /// <summary>
     /// Gather packages information
     /// </summary>
-    /// <param name="aurExplicit">Explicit AUR package name</param>
+    /// <param name="aurExplicit">Explicit AUR package names</param>
     /// <returns></returns>
     public async Task<Hashtable> GatherPackageInfo(IEnumerable<string> aurExplicit)
     {

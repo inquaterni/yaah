@@ -6,7 +6,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yaah.Net", "Yaah.Net\Yaah.N
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yaah.DReS", "Yaah.DReS\Yaah.DReS.csproj", "{74BB54D2-3009-4A4F-890B-8CAA8656D21C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yaah.System", "Yaah.System\Yaah.System.csproj", "{E504377A-366F-4B98-83EA-6CF7A337352B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yaah.Infrastructure", "Yaah.Infrastructure\Yaah.Infrastructure.csproj", "{E504377A-366F-4B98-83EA-6CF7A337352B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Yaah.Testing", "Yaah.Testing\Yaah.Testing.csproj", "{FA63DA01-973A-4C3B-9A50-8FE4F5455DEC}"
 EndProject

@@ -2,10 +2,10 @@ using System.Collections;
 using System.Text.RegularExpressions;
 using QuikGraph;
 using QuikGraph.Algorithms;
-using Yaapm.Net.Structs;
-using Yaapm.System;
+using Yaah.Net.Structs;
+using Yaah.System;
 
-namespace Yaapm.DReS;
+namespace Yaah.DReS;
 
 public static class Graph
 {
