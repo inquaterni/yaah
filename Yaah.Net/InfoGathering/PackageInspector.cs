@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Concurrent;
-using System.Text.RegularExpressions;
 using NLog;
 using Yaapm.Net.Rpc;
 using Yaapm.Net.Structs;
@@ -9,10 +8,17 @@ using Yaapm.System.Database;
 
 namespace Yaapm.Net.InfoGathering;
 
-public class PackageInspector(IntPtr db)
+public class PackageInspector
 {
     private readonly RpcEngine _engine = new();
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+    private readonly IntPtr _db;
+
+    // ReSharper disable once ConvertToPrimaryConstructor
+    public PackageInspector(IntPtr db)
+    {
+        _db = db;
+    }
 
     /// <summary>
     ///  Gather and process nullable array of strings (packages)
@@ -34,7 +40,7 @@ public class PackageInspector(IntPtr db)
     }
     
     /// <summary>
-    /// Version compare 
+    /// Version comparison
     /// </summary>
     /// <param name="pkg">Package info</param>
     /// <param name="op">Condition operator</param>
@@ -46,7 +52,7 @@ public class PackageInspector(IntPtr db)
         try
         {
             Logger.Debug("Getting package information from DB");
-            var pkgPtr = DatabaseController.GetPackage(db, pkg.Name);
+            var pkgPtr = DatabaseController.GetPackage(_db, pkg.Name);
             var pkgVersion = DatabaseController.GetPackageVersion(pkgPtr);
             Logger.Debug("Compairing requred version & DB version");
             databaseResult = DatabaseController.VersionComparison(version, pkgVersion);
@@ -156,23 +162,31 @@ public class PackageInspector(IntPtr db)
 
         while (stack.Count != 0)
         {
-            var current = stack.Pop();
-            Logger.Debug($"Processing '{current.Name}'");
-
-            if (result.ContainsKey(current.Name))
+            try
             {
-                Logger.Warn($"Package '{current.Name}' already in table");
-                continue;
+                var current = stack.Pop();
+                Logger.Debug($"Processing '{current.Name}'");
+
+                if (result.ContainsKey(current.Name))
+                {
+                    Logger.Warn($"Package '{current.Name}' already in table");
+                    continue;
+                }
+
+                result[current.Name] = current;
+
+                var depends = await InfoNullable(current.Depends);
+                var makeDepends = await InfoNullable(current.MakeDepends);
+                var checkDepends = await InfoNullable(current.CheckDepends);
+
+                AddRange(depends, stack);
+                AddRange(makeDepends, stack);
+                AddRange(checkDepends, stack);
             }
-            result[current.Name] = current;
-            
-            var depends = await InfoNullable(current.Depends);
-            var makeDepends = await InfoNullable(current.MakeDepends);
-            var checkDepends = await InfoNullable(current.CheckDepends);
-            
-            AddRange(depends, stack);
-            AddRange(makeDepends, stack);
-            AddRange(checkDepends, stack);
+            catch (Exception e) when (e is NullReferenceException)
+            {
+                Logger.Warn("While gathering package information, NullReferenceException is thrown.");
+            }
         }
         
         return result;

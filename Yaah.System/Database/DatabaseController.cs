@@ -25,6 +25,7 @@ public class DatabaseController: IDisposable
     /// </summary>
     /// <returns>Pointer to local db</returns>
     /// <exception cref="Exception">Occurs when alpm_get_localdb fails</exception>
+    /// <see cref="https://man.archlinux.org/man/libalpm_databases.3.en"/>
     public IntPtr GetLocalDb()
     {
         var dbHandle = alpm_get_localdb(_alpmHandle);
@@ -75,6 +76,7 @@ public class DatabaseController: IDisposable
     /// Different epoch values for version strings will override any further comparison. If no epoch is provided, 0 is assumed.
     /// Keep in mind that the pkgrel is only compared if it is available on both versions handed to this function. For example, comparing 1.5-1 and 1.5 will yield 0; comparing 1.5-1 and 1.5-2 will yield -1 as expected. This is mainly for supporting versioned dependencies that do not include the pkgrel.
     /// </summary>
+    /// <see cref="https://man.archlinux.org/man/libalpm_packages.3.en"/>
     public static int VersionComparison(string a, string b)
     {
         return alpm_pkg_vercmp(a, b);

@@ -2,9 +2,12 @@ using System.Diagnostics;
 
 namespace Yaapm.System.Process;
 
+/// <summary>
+/// Helper class for running shell commands
+/// </summary>
 public static class ShellRunner
 {
-    private static readonly string? Shell = Environment.GetEnvironmentVariable("SHELL");
+    private static readonly string Shell = Environment.GetEnvironmentVariable("SHELL") ?? "/usr/bin/bash";
 
     public static void Run(string cmd)
     {

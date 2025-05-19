@@ -1,4 +1,5 @@
-﻿using CommandLine;
+﻿using System.Runtime.InteropServices;
+using CommandLine;
 using NLog;
 using NLog.Config;
 using QuikGraph;
@@ -9,7 +10,6 @@ using Yaapm.Net.InfoGathering;
 using Yaapm.Net.Rpc;
 using Yaapm.Net.Structs;
 using Yaapm.System.Database;
-using static Yaapm.System.FileSystem.FileSystemController;
 using Yaapm.System.Process;
 
 namespace Yaapm.CLI;
@@ -34,15 +34,18 @@ internal class Options
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 }
 
-internal static class Program
+internal static partial class Program
 {
     private static readonly RpcEngine Engine = new();
     private static readonly DatabaseController Db = new();
-    private static readonly string CachePath = Path.Combine(GetHomePath(), ".cache/yaah/");
+    private static readonly string CachePath = Path.Combine(Environment.GetEnvironmentVariable("HOME") ?? "~/", ".cache/yaah/");
 
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
     private static readonly LoggingConfiguration Config = new();
 
+    [LibraryImport("libc")]
+    private static partial uint getuid();
+    
     private static T? Input<T>(string prompt, T? defaultValue = default, Func<string?, T>? filterFunc = null)
     {
         Console.Write(prompt);
@@ -66,6 +69,10 @@ internal static class Program
 
     private static void Main(string[] args)
     {
+        if (getuid() == 0)
+        {
+            Console.WriteLine("Avoid running yaah as root/sudo.");
+        }
         
         // var logFile = new NLog.Targets.FileTarget("logfile") {FileName = "log.txt"};
         var target = new NLog.Targets.ColoredConsoleTarget("console")
@@ -73,9 +80,10 @@ internal static class Program
             Layout = "[${longdate}|${level:uppercase=true}] ${logger}: ${message}"
         };
         Config.AddTarget(target);
-        Config.AddRule(LogLevel.Trace, LogLevel.Info, target);
+        Config.AddRule(LogLevel.Info, LogLevel.Fatal, target);
         
         LogManager.Configuration = Config;
+        LogManager.ReconfigExistingLoggers();
         
         Parser.Default.ParseArguments<Options>(args)
             .WithParsed(opts =>
@@ -115,7 +123,7 @@ internal static class Program
             })
             .WithNotParsed(errs =>
             {
-                Console.WriteLine(errs);
+                Logger.Fatal(string.Join("\n", errs));
                 Environment.Exit(-1);
             });
     }
@@ -232,8 +240,8 @@ internal static class Program
 
     private static void SerializeGraph(string package, string path)
     {
+        Logger.Debug($"Serializing graph to '{path}'");
         var dir = path[..(path.LastIndexOf('/') + 1)];
-        Logger.Debug($"Serializing graph to '{dir}'");
         if (!Directory.Exists(dir))
         {
             Logger.Fatal("Directory not found, exiting...");

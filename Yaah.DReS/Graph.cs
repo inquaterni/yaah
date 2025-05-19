@@ -45,6 +45,13 @@ public static class Graph
         });
     }
 
+    /// <summary>
+    ///  Build graph for given AUR package
+    /// </summary>
+    /// <param name="pkgExplicit">AUR explicit package name</param>
+    /// <param name="table">Hashtable with gathered packages data</param>
+    /// <returns>Directed Acyclic Dependency Graph
+    /// \dotfile iup-graph-single.dot "Example graph for iup package"</returns>
     public static AdjacencyGraph<string, Edge<string>> BuildFor(string pkgExplicit, Hashtable table)
     {
         
