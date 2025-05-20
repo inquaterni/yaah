@@ -1,0 +1,26 @@
+digraph G {
+0 [label="meta-package-manager"];
+1 [label="python-boltons"];
+2 [label="python-click-extra"];
+3 [label="python-cyclonedx-lib"];
+4 [label="python-packageurl"];
+5 [label="python-spdx-tools"];
+6 [label="python-beartype"];
+7 [label="python-uritools"];
+8 [label="python-pyshacl"];
+9 [label="python-rich-click"];
+10 [label="python-extra-platforms"];
+0 -> 1;
+0 -> 2;
+0 -> 3;
+0 -> 4;
+0 -> 5;
+2 -> 1;
+2 -> 10;
+3 -> 4;
+5 -> 6;
+5 -> 7;
+5 -> 8;
+6 -> 9;
+10 -> 1;
+}

@@ -10,14 +10,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Yaah.Infrastructure\Yaah.Infrastructure.csproj" />
-      <ProjectReference Include="..\Yaah.DReS\Yaah.DReS.csproj" />
-      <ProjectReference Include="..\Yaah.Net\Yaah.Net.csproj" />
+        <ProjectReference Include="..\Yaah.Infrastructure\Yaah.Infrastructure.csproj"/>
+        <ProjectReference Include="..\Yaah.DReS\Yaah.DReS.csproj"/>
+        <ProjectReference Include="..\Yaah.Net\Yaah.Net.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="CommandLineParser" Version="2.9.1" />
-      <PackageReference Include="NLog" Version="5.4.0" />
+        <PackageReference Include="CommandLineParser" Version="2.9.1"/>
+        <PackageReference Include="NLog" Version="5.4.0"/>
     </ItemGroup>
 
 </Project>

@@ -3,34 +3,38 @@
 yaah is an AUR helper written in c# capable of installing/updating AUR packages and their AUR dependencies
 ## Program flow
 Add UML program flow diagram here
-## Installation
-Arch Linux based systems
+## Installation/Cloning
+### Arch Linux based systems
 ```shell
 sudo pacman -S --needed git base-devel dotnet-runtime-8.0; git clone https://github.com/inquaterni/yaah.git; cd ./yaah
 ```
-Emulating using Docker on Windows<br>
-[Install Docker](https://docs.docker.com/desktop/setup/install/windows-install/)
+### On Windows through WSL 2
+Check if `archlinux` is available
 ```shell
-docker pull archlinux
-docker run -u root -a stdin -a stdout -i -t archlinux /bin/bash
+wsl -l -o
 ```
+If `archlinux` is in list, install it with
+```shell
+wsl --install archlinux
+```
+Proceed to [Arch Linux installation](#arch-linux-based-systems)
 ## Usage
 Print help
 ```shell
-dotnet run --project ./Yaah.CLI.csproj --help
+dotnet run --project ./Yaah.CLI/Yaah.CLI.csproj --help
 ```
 
 Install/Update packages
 ```shell
-dotnet run --project ./Yaah.CLI.csproj -S <aur-package-name> <another-aur-package-name>
+dotnet run --project ./Yaah.CLI/Yaah.CLI.csproj -S <aur-package-name> <another-aur-package-name>
 ```
 
 Enable debug logging level
 ```shell
-dotnet run --project ./Yaah.CLI.csproj -D <other options>
+dotnet run --project ./Yaah.CLI/Yaah.CLI.csproj -D <other options>
 ```
 
 Serialize graph for given package (does not install package)
 ```shell
-dotnet run --project ./Yaah.CLI.csproj -Dd <aur-package-name> <output-path>
+dotnet run --project ./Yaah.CLI/Yaah.CLI.csproj -Dd <aur-package-name> <output-path>
 ```

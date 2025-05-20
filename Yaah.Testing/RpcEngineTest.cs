@@ -5,9 +5,8 @@ namespace Testing;
 
 public class RpcEngineTest
 {
-    
     private readonly RpcEngine _engine = new();
-    
+
     [Theory]
     [InlineData("zen-browser")]
     public async Task Suggest_ReturnsStringArray(string suggestion)

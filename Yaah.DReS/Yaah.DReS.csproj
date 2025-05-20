@@ -8,13 +8,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="NLog" Version="5.4.0" />
-      <PackageReference Include="QuikGraph" Version="2.5.0" />
-      <PackageReference Include="QuikGraph.Graphviz" Version="2.5.0" />
+        <PackageReference Include="NLog" Version="5.4.0"/>
+        <PackageReference Include="QuikGraph" Version="2.5.0"/>
+        <PackageReference Include="QuikGraph.Graphviz" Version="2.5.0"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Yaah.Net\Yaah.Net.csproj" />
+        <ProjectReference Include="..\Yaah.Net\Yaah.Net.csproj"/>
     </ItemGroup>
 
 </Project>

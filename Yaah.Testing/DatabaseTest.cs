@@ -1,4 +1,5 @@
-using Yaah.System.Database;
+using Yaah.Infrastructure.Database;
+using Yaah.Infrastructure;
 
 namespace Testing;
 
@@ -13,7 +14,7 @@ public class DatabaseTest
     {
         var db = Controller.GetLocalDb();
         var pkg = DatabaseController.GetPackage(db, packageName);
-        
+
         Assert.Equal(DatabaseController.GetPackageName(pkg), packageName);
     }
 
@@ -29,7 +30,7 @@ public class DatabaseTest
     {
         Assert.Throws<ArgumentNullException>(() => DatabaseController.GetPackageName(IntPtr.Zero));
     }
-    
+
     [Fact]
     public void GetPackageVersionNULL_ThrowsArgumentNullException()
     {
@@ -41,20 +42,20 @@ public class DatabaseTest
     [InlineData("2.0.3")]
     public void EqualVersionsVersionCmp_ReturnsZero(string version)
     {
-        Assert.Equal(0, DatabaseController.VersionComparison(version, version));
+        Assert.Equal(0, VersionController.VersionComparison(version, version));
     }
-    
+
     [Theory]
     [InlineData("2.0.1-1", "2.0.3")]
     public void BIsNewerVersionCmp_ReturnsMinusOne(string a, string b)
     {
-        Assert.Equal(-1, DatabaseController.VersionComparison(a, b));
+        Assert.Equal(-1, VersionController.VersionComparison(a, b));
     }
-    
+
     [Theory]
     [InlineData("2.0.3", "2.0.1-1")]
     public void AIsNewerVersionCmp_ReturnsOne(string a, string b)
     {
-        Assert.Equal(1, DatabaseController.VersionComparison(a, b));
+        Assert.Equal(1, VersionController.VersionComparison(a, b));
     }
 }
