@@ -2,9 +2,9 @@ using System.Text.Json.Serialization;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 
-namespace Yaah.Net.Structs;
+namespace Yaah.Net.Models;
 
-public sealed class DetailedPkgInfo
+public sealed class BasicPkgInfo
 {
     [JsonPropertyName("ID")] public int Id { get; set; }
 
@@ -33,28 +33,4 @@ public sealed class DetailedPkgInfo
     [JsonPropertyName("URLPath")] public string UrlPath { get; set; }
 
     [JsonPropertyName("URL")] public string Url { get; set; }
-
-    [JsonPropertyName("Submitter")] public string Submitter { get; set; }
-
-    [JsonPropertyName("Licence")] public string[] Licence { get; set; }
-
-    [JsonPropertyName("Depends")] public string[]? Depends { get; set; }
-
-    [JsonPropertyName("MakeDepends")] public string[]? MakeDepends { get; set; }
-
-    [JsonPropertyName("OptDepends")] public string[]? OptDepends { get; set; }
-
-    [JsonPropertyName("CheckDepends")] public string[]? CheckDepends { get; set; }
-
-    [JsonPropertyName("Provides")] public string[] Provides { get; set; }
-
-    [JsonPropertyName("Conflicts")] public string[] Conflicts { get; set; }
-
-    [JsonPropertyName("Replaces")] public string[] Replaces { get; set; }
-
-    [JsonPropertyName("Groups")] public string[] Groups { get; set; }
-
-    [JsonPropertyName("Keywords")] public string[] Keywords { get; set; }
-
-    [JsonPropertyName("CoMaintainers")] public string[] CoMaintainers { get; set; }
 }

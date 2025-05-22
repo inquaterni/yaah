@@ -1,13 +1,13 @@
 using System.Text.RegularExpressions;
-using static Yaah.Infrastructure.LibAlpm;
+using static Yaah.Infrastructure.Alpm.LibAlpm;
 
-namespace Yaah.Infrastructure;
+namespace Yaah.Infrastructure.Versioning;
 
 public static partial class VersionController
 {
     [GeneratedRegex("^(?<name>.+?)(?<op>>=|<=|=|>|<)(?<version>.+)$")]
     private static partial Regex PkgNameVersionRegex();
-    
+
     /// <summary>
     ///     Compare two version strings and determine which one is 'newer'. Returns a value comparable to the way strcmp works.
     ///     Returns 1 if \p a is newer than \p b, 0 if a and b are the same version, or -1 if \p b is newer than \p a.

@@ -1,8 +1,8 @@
 using System.Text.Json;
 using NLog;
-using Yaah.Net.Structs;
+using Yaah.Net.Models;
 
-namespace Yaah.Net.Rpc;
+namespace Yaah.Net.RPC;
 
 public class RpcEngine : IDisposable
 {

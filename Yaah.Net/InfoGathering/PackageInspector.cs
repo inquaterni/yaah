@@ -1,10 +1,10 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using NLog;
-using Yaah.Net.Rpc;
-using Yaah.Net.Structs;
-using Yaah.Infrastructure;
 using Yaah.Infrastructure.Database;
+using Yaah.Infrastructure.Versioning;
+using Yaah.Net.Models;
+using Yaah.Net.RPC;
 
 namespace Yaah.Net.InfoGathering;
 

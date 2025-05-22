@@ -6,7 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <RootNamespace>yaapm</RootNamespace>
+        <RootNamespace>Yaah.CLI</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

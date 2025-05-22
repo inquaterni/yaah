@@ -1,8 +1,9 @@
 # yaah
 ## Yet another AUR helper
 yaah is an AUR helper written in c# capable of installing/updating AUR packages and their AUR dependencies
-## Program flow
-Add UML program flow diagram here
+## Features
+- Installing/Uninstalling AUR packages
+- Serializing graph for given packages
 ## Installation/Cloning
 ### Arch Linux based systems
 ```shell
@@ -19,22 +20,22 @@ wsl --install archlinux
 ```
 Proceed to [Arch Linux installation](#arch-linux-based-systems)
 ## Usage
+### Basic
 Print help
 ```shell
 dotnet run --project ./Yaah.CLI/Yaah.CLI.csproj --help
 ```
-
 Install/Update packages
 ```shell
 dotnet run --project ./Yaah.CLI/Yaah.CLI.csproj -S <aur-package-name> <another-aur-package-name>
 ```
-
+### Debug
 Enable debug logging level
 ```shell
 dotnet run --project ./Yaah.CLI/Yaah.CLI.csproj -D <other options>
 ```
-
 Serialize graph for given package (does not install package)
 ```shell
 dotnet run --project ./Yaah.CLI/Yaah.CLI.csproj -Dd <aur-package-name> <output-path>
 ```
+## Documentation generation

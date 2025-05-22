@@ -5,7 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <RootNamespace>Database</RootNamespace>
+        <RootNamespace>Yaah.Infrastructure</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

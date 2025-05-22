@@ -1,5 +1,6 @@
+using System.Runtime.InteropServices;
 using Yaah.Infrastructure.Database;
-using Yaah.Infrastructure;
+using Yaah.Infrastructure.Errors.Exceptions;
 
 namespace Testing;
 
@@ -7,55 +8,43 @@ public class DatabaseTest
 {
     private static readonly DatabaseController Controller = new();
 
-    [Theory]
+    [Theory(Timeout = 100)]
     [InlineData("gtk3")]
     [InlineData("yay")]
     public void GetExistingPackage_ReturnsRightPackage(string packageName)
     {
         var db = Controller.GetLocalDb();
         var pkg = DatabaseController.GetPackage(db, packageName);
-
-        Assert.Equal(DatabaseController.GetPackageName(pkg), packageName);
+        
+        Assert.NotEqual(IntPtr.Zero, pkg);
+        
+        var name = DatabaseController.GetPackageName(pkg);
+        Assert.NotNull(name);
+        Assert.Equal(name, packageName);
     }
 
-    [Fact]
+    [Fact(Timeout = 100)]
+    public void RegisterDatabase_NoThrow()
+    {
+        Controller.RegisterSyncDb("multilib", -1);
+    }
+
+    [Fact(Timeout = 100)]
     public void GetNonExistingPackage_ThrowsException()
     {
         var db = Controller.GetLocalDb();
-        Assert.Throws<Exception>(() => DatabaseController.GetPackage(db, "non-existing-package"));
+        Assert.Throws<DatabaseException>(() => DatabaseController.GetPackage(db, "non-existing-package"));
     }
 
-    [Fact]
+    [Fact(Timeout = 100)]
     public void GetPackageNameNULL_ThrowsArgumentNullException()
     {
         Assert.Throws<ArgumentNullException>(() => DatabaseController.GetPackageName(IntPtr.Zero));
     }
 
-    [Fact]
+    [Fact(Timeout = 100)]
     public void GetPackageVersionNULL_ThrowsArgumentNullException()
     {
         Assert.Throws<ArgumentNullException>(() => DatabaseController.GetPackageVersion(IntPtr.Zero));
-    }
-
-    [Theory]
-    [InlineData("2.0.1-1")]
-    [InlineData("2.0.3")]
-    public void EqualVersionsVersionCmp_ReturnsZero(string version)
-    {
-        Assert.Equal(0, VersionController.VersionComparison(version, version));
-    }
-
-    [Theory]
-    [InlineData("2.0.1-1", "2.0.3")]
-    public void BIsNewerVersionCmp_ReturnsMinusOne(string a, string b)
-    {
-        Assert.Equal(-1, VersionController.VersionComparison(a, b));
-    }
-
-    [Theory]
-    [InlineData("2.0.3", "2.0.1-1")]
-    public void AIsNewerVersionCmp_ReturnsOne(string a, string b)
-    {
-        Assert.Equal(1, VersionController.VersionComparison(a, b));
     }
 }

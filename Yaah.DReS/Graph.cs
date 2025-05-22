@@ -2,8 +2,8 @@ using System.Collections;
 using NLog;
 using QuikGraph;
 using QuikGraph.Algorithms;
-using Yaah.Net.Structs;
-using Yaah.Infrastructure;
+using Yaah.Infrastructure.Versioning;
+using Yaah.Net.Models;
 
 namespace Yaah.DReS;
 
