@@ -1,51 +1,38 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Collections;
+using System.Runtime.InteropServices;
 using CommandLine;
 using NLog;
 using NLog.Config;
+using NLog.Targets;
 using QuikGraph;
 using QuikGraph.Algorithms;
+using QuikGraph.Graphviz;
 using Yaah.DReS;
-using Yaah.DReS.Optional;
+using Yaah.Infrastructure.Alpm;
+using Yaah.Infrastructure.Alpm.Collections;
+using Yaah.Infrastructure.Alpm.Nodes;
+using Yaah.Infrastructure.Database;
+using Yaah.Infrastructure.Process;
 using Yaah.Net.InfoGathering;
-using Yaah.Net.Rpc;
-using Yaah.Net.Structs;
-using Yaah.System.Database;
-using Yaah.System.Process;
+using Yaah.Net.Models;
+using Yaah.Net.RPC;
+using FileDotEngine = Yaah.DReS.Optional.FileDotEngine;
 
 namespace Yaah.CLI;
-
-internal class Options
-{
-    [Option('S', "sync", HelpText = "Install or update the specified packages")]
-    public bool Sync { get; set; }
-    
-    [Option('s', "search", HelpText = "Search for specified packages")]
-    public bool Search { get; set; }
-    
-    [Option('D', "debug", HelpText = "Enable debug output")]
-    public bool Debug { get; set; }
-    
-    [Option('g', "graph-serialization", HelpText = "Enable graph serialization")]
-    public bool GraphSerialization { get; set; }
-    
-    [Value(0, MetaName = "parameters", Required = true, HelpText = "Packages to operate on", Min = 1)]
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-    public IEnumerable<string> Parameters { get; set; }
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-}
 
 internal static partial class Program
 {
     private static readonly RpcEngine Engine = new();
     private static readonly DatabaseController Db = new();
-    private static readonly string CachePath = Path.Combine(Environment.GetEnvironmentVariable("HOME") ?? "~/", ".cache/yaah/");
+
+    private static readonly string CachePath =
+        Path.Combine(Environment.GetEnvironmentVariable("HOME") ?? "~/", ".cache/yaah/");
 
     private static readonly Logger Logger = LogManager.GetCurrentClassLogger();
-    private static readonly LoggingConfiguration Config = new();
 
     [LibraryImport("libc")]
     private static partial uint getuid();
-    
+
     private static T? Input<T>(string prompt, T? defaultValue = default, Func<string?, T>? filterFunc = null)
     {
         Console.Write(prompt);
@@ -63,69 +50,67 @@ internal static partial class Program
         {
             Logger.Error(e);
         }
-        
+
         return result;
     }
 
     private static void Main(string[] args)
     {
-        if (getuid() == 0)
-        {
-            Console.WriteLine("Avoid running yaah as root/sudo.");
-        }
-        
-        // var logFile = new NLog.Targets.FileTarget("logfile") {FileName = "log.txt"};
-        var target = new NLog.Targets.ColoredConsoleTarget("console")
-        {
-            Layout = "[${longdate}|${level:uppercase=true}] ${logger}: ${message}"
-        };
-        Config.AddTarget(target);
-        Config.AddRule(LogLevel.Info, LogLevel.Fatal, target);
-        
-        LogManager.Configuration = Config;
-        LogManager.ReconfigExistingLoggers();
-        
+        if (getuid() == 0) Console.WriteLine("Avoid running yaah as root/sudo.");
+
+        var target = ConfigureLogger();
+
         Parser.Default.ParseArguments<Options>(args)
             .WithParsed(opts =>
             {
                 if (opts.Debug)
                 {
-                    Config.AddRule(LogLevel.Debug, LogLevel.Fatal, target);
+                    LogManager.Configuration.AddRule(LogLevel.Debug, LogLevel.Fatal, target);
                     LogManager.ReconfigExistingLoggers();
                 }
-                
-                Logger.Debug($"Parameters: {string.Join(", ", opts.Parameters.AsParallel().Select(x => "'" + x + "'"))}");
-                
+
+                Logger.Debug(
+                    $"Parameters: {string.Join(", ", opts.Parameters.AsParallel().Select(x => "'" + x + "'"))}");
+
                 if (opts.Sync)
                 {
                     if (opts.Search)
                     {
                         if (opts.Parameters.ToArray().Length == 1)
-                        {
                             Search(opts.Parameters.First());
-                        }
                         else
-                        {
                             Console.WriteLine("Search requires only one package");
-                        }
                     }
+                    // else if (opts.Update)
+                    // {
+                    //     UpdateAll();
+                    // }
                     else
                     {
                         Install(opts.Parameters.ToArray());
                     }
                 }
-                
+
                 if (!opts.GraphSerialization || opts.Sync || opts.Search) return;
-                if (opts.Parameters.ToArray().Length == 2)
-                {
-                    SerializeGraph(opts.Parameters.First(), opts.Parameters.Skip(1).First());
-                }
+                var array = opts.Parameters.ToArray();
+                SerializeGraph(array[..^1], array[^1]);
             })
             .WithNotParsed(errs =>
             {
                 Logger.Fatal(string.Join("\n", errs));
                 Environment.Exit(-1);
             });
+    }
+
+    private static ColoredConsoleTarget ConfigureLogger(string configFilePath = "NLog.config", string targetName = "console")
+    {
+        var config = new XmlLoggingConfiguration(configFilePath);
+        LogManager.Configuration = config;
+        LogManager.ReconfigExistingLoggers();
+        
+        var target = config.FindTargetByName<ColoredConsoleTarget>(targetName);
+        if (target == null) throw new KeyNotFoundException($"Target {targetName} not found or is not a ColoredConsoleTarget");
+        return target;
     }
 
     private static void Search(string package)
@@ -138,7 +123,7 @@ internal static partial class Program
         }
 
         var i = 0;
-        foreach (var result in searchRes.Results)
+        Parallel.ForEach(searchRes.Results, result =>
         {
             var resultStr = $"{++i} {result.Name} {result.Version} ";
             if (result.OutOfDate != null)
@@ -147,57 +132,28 @@ internal static partial class Program
                 var localDateTime = dto.LocalDateTime;
                 resultStr += $"(Out of date: {localDateTime:yyyy-MM-dd})";
             }
-            
+
             resultStr += $"\n\t{result.Description}";
             Console.WriteLine(resultStr);
-        }
+        });
     }
 
     private static void Install(string[] packages)
     {
-        var flags = "-si";
-        List<BasicPkgInfo> pkgExplicit = [];
-        
-        Parallel.ForEachAsync(packages, async (pkg, token) =>
-        {
-            var pkgs = await Engine.Search(pkg, token: token);
-            if (pkgs is null || pkgs.ResultCount == 0 || !pkgs.Results.AsParallel().Any(x => x.Name.Equals(pkg)))
-            {
-                Logger.Debug($"Package '{pkg}' not found");
-                return;
-            }
-            pkgExplicit.Add(pkgs.Results.AsParallel().Where(x => x.Name.Equals(pkg)).First());
-        }).Wait();
+        var flags = "-sif";
+        List<DetailedPkgInfo> pkgExplicit = [];
 
-        if (pkgExplicit.Count == 0)
-        {
-            Logger.Fatal("No packages found");
-            return;
-        }
+        SearchExplicitPackages(packages, ref pkgExplicit);
         
-        Console.WriteLine($"AUR Explicit({pkgExplicit.Count}): {string.Join(", ", pkgExplicit.AsParallel().Select(x => $"{x.Name}-{x.Version}"))}");
-        
-        flags += Input("Clean build? [Y/n]\n", "c", input =>
-        {
-            if (input != null && input.Equals("n", StringComparison.OrdinalIgnoreCase)) return string.Empty;
-            return "c";
-        });
-        Logger.Debug($"Flags updated: {flags}");
+        Console.WriteLine(
+            $"AUR Explicit ({pkgExplicit.Count}): {string.Join(", ", pkgExplicit.AsParallel().Select(x => $"{x.Name}-{x.Version}"))}");
 
-        flags += Input("Remove make dependencies after installation? [y/N]\n", string.Empty, input =>
-        {
-            if (input != null && input.Equals("y", StringComparison.OrdinalIgnoreCase))
-            {
-                return "r";
-            }
-            return string.Empty;
-        });
-        Logger.Debug($"Flags updated: {flags}");
+        flags = AskInstallFlags(flags);
 
         var inspector = new PackageInspector(Db.GetLocalDb());
         var table = inspector.GatherPackageInfo(pkgExplicit.Select(x => x.Name)).Result;
 
-        var graph = Graph.BuildFor(pkgExplicit.AsParallel().Select(x => x.Name), table);
+        var graph = Graph.BuildFor(pkgExplicit.Select(x => x.Name).AsParallel(), table);
 
         if (!graph.IsDirectedAcyclicGraph())
         {
@@ -211,20 +167,51 @@ internal static partial class Program
             Logger.Debug($"Creating cache directory: '{CachePath}'");
             Directory.CreateDirectory(CachePath);
         }
+
         Directory.SetCurrentDirectory(CachePath);
 
         var installOrder = Graph.GetInstallOrder(graph).ToArray();
-        Logger.Debug($"Install order: {string.Join(", ", installOrder)}");
-        
-        Parallel.ForEach(installOrder, pkg =>
-        {
-            var detailedPkgInfo = table[pkg] as DetailedPkgInfo;
+        Logger.Debug($"Install order: {string.Join("->", installOrder)}");
 
-            ShellRunner.Run(Directory.Exists(pkg)
-                ? $"git -C {pkg} pull"
-                : $"git clone https://aur.archlinux.org/{detailedPkgInfo!.Name}.git");
-        });
-        var i = 0;
+        CloneRepos(installOrder, table);
+        MakePackages(installOrder, flags);
+    }
+
+    // private static unsafe void UpdateAll()
+    // {
+    //     var localCache = DatabaseController.GetPackageCache(Db.GetLocalDb());
+    //     var syncDbs = Db.GetSyncDbs();
+    //     var syncCache = new AlpmList<AlpmPkgListNode>();
+    //     foreach (var syncDb in syncDbs)
+    //     {
+    //         var pkgCache = DatabaseController.GetPackageCache(syncDb.Data);
+    //         syncCache.AddRange(pkgCache);
+    //     }
+    //     
+    //     var allCache = localCache.Extend(syncCache, ExtendOptions.DeleteEqual);
+    //     var diff = allCache.Except(syncCache).ToList();
+    //     
+    //     Console.WriteLine($"diff: {string.Join(", ", diff.Select(x => DatabaseController.GetPackageName(x.Data)))}");
+    //     Console.WriteLine(diff.Count);
+    // }
+
+    private static void SerializeGraph(IEnumerable<string> packages, string path)
+    {
+        Logger.Debug($"Serializing graph to '{path}'");
+        if (!Directory.Exists(Path.GetDirectoryName(path))) return;
+
+        var inspector = new PackageInspector(Db.GetLocalDb());
+        var aurExplicit = packages as string[] ?? packages.ToArray();
+        var table = inspector.GatherPackageInfo(aurExplicit).Result;
+
+        var graph = Graph.BuildFor(aurExplicit, table);
+        var algorithm = new GraphvizAlgorithm<string, Edge<string>>(graph);
+        algorithm.FormatVertex += (_, args) => { args.VertexFormat.Label = args.Vertex; };
+        algorithm.Generate(new FileDotEngine(), path);
+    }
+
+    private static void MakePackages(string[] installOrder, string flags)
+    {
         foreach (var pkg in installOrder)
         {
             if (!Directory.Exists(pkg))
@@ -233,31 +220,47 @@ internal static partial class Program
                 Console.WriteLine($"ERROR: Could not find installation directory for pkg '{pkg}'");
                 Environment.Exit(-1);
             }
-            
-            ShellRunner.Run($"makepkg -D {pkg} " + flags + (i++ != 0 ? " --skippgpcheck" : ""));
+
+            ShellRunner.Run($"makepkg -D {pkg} " + flags + " --needed --skippgpcheck");
         }
     }
 
-    private static void SerializeGraph(string package, string path)
+    private static void CloneRepos(string[] installOrder, Hashtable table)
     {
-        Logger.Debug($"Serializing graph to '{path}'");
-        var dir = path[..(path.LastIndexOf('/') + 1)];
-        if (!Directory.Exists(dir))
+        Parallel.ForEach(installOrder, pkg =>
         {
-            Logger.Fatal("Directory not found, exiting...");
-            Console.WriteLine($"Directory not found: '{dir}'");
-            return;
-        }
+            var detailedPkgInfo = table[pkg] as DetailedPkgInfo;
 
-        var inspector = new PackageInspector(Db.GetLocalDb());
-        var table = inspector.GatherPackageInfo(package).Result;
+            ShellRunner.Run(Directory.Exists(pkg)
+                ? $"git -C {pkg} pull"
+                : $"git clone https://aur.archlinux.org/{detailedPkgInfo!.Name}.git");
+        });
+    }
 
-        var graph = Graph.BuildFor(package, table);
-        var algorithm = new QuikGraph.Graphviz.GraphvizAlgorithm<string, Edge<string>>(graph);
-        algorithm.FormatVertex += (_, args) =>
+    private static void SearchExplicitPackages(IEnumerable<string> packages, ref List<DetailedPkgInfo> pkgExplicit)
+    {
+        var infoResult = Engine.Info(packages).Result;
+        
+        if (infoResult == null) return;
+        
+        pkgExplicit = infoResult.Results.ToList();
+    }
+
+    private static string AskInstallFlags(string flags)
+    {
+        flags += Input("Clean build? [Y/n]\n", "c", input =>
         {
-            args.VertexFormat.Label = args.Vertex;
-        };
-        algorithm.Generate(new FileDotEngine(), path);
+            if (input != null && input.Equals("n", StringComparison.OrdinalIgnoreCase)) return string.Empty;
+            Logger.Debug("Adding -c to flags");
+            return "c";
+        });
+
+        flags += Input("Remove make dependencies after installation? [y/N]\n", string.Empty, input =>
+        {
+            if (input == null || !input.Equals("y", StringComparison.OrdinalIgnoreCase)) return string.Empty;
+            Logger.Debug("Adding -r to flags");
+            return "r";
+        });
+        return flags;
     }
 }

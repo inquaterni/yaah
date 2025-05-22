@@ -1,5 +1,5 @@
+using Yaah.Infrastructure.Database;
 using Yaah.Net.InfoGathering;
-using Yaah.System.Database;
 
 namespace Testing;
 
@@ -27,7 +27,7 @@ public class PackageInspectorTest
     public async Task GetPackageInfo(string pkg, IEnumerable<string> expected)
     {
         var result = await _inspector.GatherPackageInfo(pkg);
-        
+
         var keysSet = new HashSet<string>(result.Keys.Cast<string>());
         var expectedSet = new HashSet<string>(expected);
         Assert.True(expectedSet.SetEquals(keysSet));

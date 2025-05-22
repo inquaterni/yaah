@@ -7,12 +7,12 @@
 
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
-        <RootNamespace>Testing</RootNamespace>
+        <RootNamespace>Yaah.Testing</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0"/>
-        <PackageReference Include="NLog" Version="5.4.0" />
+        <PackageReference Include="NLog" Version="5.4.0"/>
         <PackageReference Include="xunit" Version="2.4.2"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -25,9 +25,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Yaah.Infrastructure\Yaah.Infrastructure.csproj" />
-      <ProjectReference Include="..\Yaah.DReS\Yaah.DReS.csproj" />
-      <ProjectReference Include="..\Yaah.Net\Yaah.Net.csproj" />
+        <ProjectReference Include="..\Yaah.Infrastructure\Yaah.Infrastructure.csproj"/>
+        <ProjectReference Include="..\Yaah.DReS\Yaah.DReS.csproj"/>
+        <ProjectReference Include="..\Yaah.Net\Yaah.Net.csproj"/>
     </ItemGroup>
 
 </Project>

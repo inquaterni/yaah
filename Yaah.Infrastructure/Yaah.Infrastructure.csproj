@@ -5,11 +5,11 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <RootNamespace>Database</RootNamespace>
+        <RootNamespace>Yaah.Infrastructure</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="NLog" Version="5.4.0" />
+        <PackageReference Include="NLog" Version="5.4.0"/>
     </ItemGroup>
 
 </Project>

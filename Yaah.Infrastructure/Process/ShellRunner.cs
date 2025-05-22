@@ -1,10 +1,7 @@
 using System.Diagnostics;
 
-namespace Yaah.System.Process;
+namespace Yaah.Infrastructure.Process;
 
-/// <summary>
-/// Helper class for running shell commands
-/// </summary>
 public static class ShellRunner
 {
     private static readonly string Shell = Environment.GetEnvironmentVariable("SHELL") ?? "/usr/bin/bash";
@@ -12,19 +9,16 @@ public static class ShellRunner
     public static void Run(string cmd)
     {
         if (Shell == null) throw new ArgumentException("Environment variable SHELL not set");
-        
+
         var startInfo = new ProcessStartInfo(Shell)
         {
             UseShellExecute = true,
             Arguments = $"-c \"{cmd}\""
         };
 
-        using var process = global::System.Diagnostics.Process.Start(startInfo);
-        if (process == null)
-        {
-            throw new ArgumentException("Failed to run process");
-        }
-        
+        using var process = System.Diagnostics.Process.Start(startInfo);
+        if (process == null) throw new ArgumentException("Failed to run process");
+
         process.WaitForExit();
     }
 }

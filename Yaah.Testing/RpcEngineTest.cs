@@ -1,13 +1,12 @@
-using Yaah.Net.Rpc;
-using Yaah.Net.Structs;
+using Yaah.Net.Models;
+using Yaah.Net.RPC;
 
 namespace Testing;
 
 public class RpcEngineTest
 {
-    
     private readonly RpcEngine _engine = new();
-    
+
     [Theory]
     [InlineData("zen-browser")]
     public async Task Suggest_ReturnsStringArray(string suggestion)
