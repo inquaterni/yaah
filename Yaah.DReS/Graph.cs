@@ -59,7 +59,7 @@ public static class Graph
     /// <param name="table">Hashtable with gathered packages data</param>
     /// <returns>
     ///     Dependency Graph
-    ///     \dotfile iup-graph-single.dot "Example graph for iup package"
+    ///     \dotfile graph-single.dot "Example graph for iup package"
     /// </returns>
     public static AdjacencyGraph<string, Edge<string>> BuildFor(string pkgExplicit, Hashtable table)
     {

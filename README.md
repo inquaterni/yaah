@@ -38,4 +38,3 @@ Serialize graph for given package (does not install package)
 ```shell
 dotnet run --project ./Yaah.CLI/Yaah.CLI.csproj -Dd <aur-package-name> <output-path>
 ```
-## Documentation generation
