@@ -10,7 +10,8 @@ public unsafe struct AlpmDbListNode : IAlpmListNode<AlpmDbListNode>
 {
     public bool Equals(AlpmDbListNode other)
     {
-        return new AlpmList<AlpmPkgListNode>(alpm_db_get_pkgcache(Data)).Equals(new AlpmList<AlpmPkgListNode>(alpm_db_get_pkgcache(other.Data)));
+        return new AlpmList<AlpmPkgListNode>(alpm_db_get_pkgcache(Data)).Equals(
+            new AlpmList<AlpmPkgListNode>(alpm_db_get_pkgcache(other.Data)));
     }
 
     public IntPtr Data { get; set; }

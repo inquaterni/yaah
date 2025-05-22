@@ -52,8 +52,6 @@ public class RpcEngine : IDisposable
     /// </param>
     /// <param name="token">Cancellation token</param>
     /// <returns>Search for packages with a single term returning basic package information</returns>
-    /// <exception cref="ArgumentNullException"></exception>
-    /// <exception cref="JsonException"></exception>
     public async Task<SearchResult?> Search(string arg, string by = "name-desc", CancellationToken token = default)
     {
         Logger.Debug($"Sending GET request to URI: search/{arg}?by={by}");
@@ -70,8 +68,6 @@ public class RpcEngine : IDisposable
     /// <param name="arg">Provide your search-term in the \p arg parameter.</param>
     /// <param name="token">Cancellation token</param>
     /// <returns>Returns a list of package-names starting with \p arg (max 20 results)</returns>
-    /// <exception cref="ArgumentNullException"></exception>
-    /// <exception cref="JsonException"></exception>
     public async Task<string[]?> Suggest(string arg, CancellationToken token = default)
     {
         Logger.Debug($"Sending GET request to URI: suggest/{arg}");
@@ -88,8 +84,6 @@ public class RpcEngine : IDisposable
     /// <param name="arg">Provide your search-term in the \p arg parameter.</param>
     /// <param name="token">Cancellation token</param>
     /// <returns>Returns a list of package-base-names starting with \p arg (max 20 results)</returns>
-    /// <exception cref="ArgumentNullException"></exception>
-    /// <exception cref="JsonException"></exception>
     public async Task<string[]?> SuggestPkgbase(string arg, CancellationToken token = default)
     {
         Logger.Debug($"Sending GET request to URI: suggest-pkgbase/{arg}");
@@ -106,8 +100,6 @@ public class RpcEngine : IDisposable
     /// <param name="arg">Provide a package name in the \p arg parameter.</param>
     /// <returns>Get detailed information for a single package</returns>
     /// <param name="token">Cancellation token</param>
-    /// <exception cref="ArgumentNullException"></exception>
-    /// <exception cref="JsonException"></exception>
     public async Task<InfoResult?> Info(string arg, CancellationToken token = default)
     {
         Logger.Debug($"Sending GET request to URI: info/{arg}");
@@ -124,8 +116,6 @@ public class RpcEngine : IDisposable
     /// <param name="arg">Provide one or more package names in the \p arg parameter.</param>
     /// <returns>Get detailed information for multiple packages</returns>
     /// <param name="token">Cancellation token</param>
-    /// <exception cref="ArgumentNullException"></exception>
-    /// <exception cref="JsonException"></exception>
     public async Task<InfoResult?> Info(IEnumerable<string> arg, CancellationToken token = default)
     {
         var encodedArgs = ConstructUrlArgs(arg);

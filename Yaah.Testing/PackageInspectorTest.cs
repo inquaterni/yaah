@@ -24,12 +24,24 @@ public class PackageInspectorTest
         "lua53-im",
         "libim"
     })]
-    public async Task GetPackageInfo(string pkg, IEnumerable<string> expected)
+    [InlineData("clion", new[] { "clion" })]
+    public async Task GetPackageInfo_ReturnsRightPackages(string pkg, IEnumerable<string> expected)
     {
         var result = await _inspector.GatherPackageInfo(pkg);
 
         var keysSet = new HashSet<string>(result.Keys.Cast<string>());
         var expectedSet = new HashSet<string>(expected);
         Assert.True(expectedSet.SetEquals(keysSet));
+    }
+
+    [Theory]
+    [InlineData("some-nonexisting-package1")]
+    [InlineData("some-nonexisting-package2")] // Why?
+    [InlineData("some-nonexisting-package3")]
+    public async Task GetPackageInfo_BadData_ReturnsEmptyTable(string pkg)
+    {
+        var result = await _inspector.GatherPackageInfo(pkg);
+
+        Assert.Equal(0, result.Keys.Count);
     }
 }

@@ -8,9 +8,6 @@ using QuikGraph;
 using QuikGraph.Algorithms;
 using QuikGraph.Graphviz;
 using Yaah.DReS;
-using Yaah.Infrastructure.Alpm;
-using Yaah.Infrastructure.Alpm.Collections;
-using Yaah.Infrastructure.Alpm.Nodes;
 using Yaah.Infrastructure.Database;
 using Yaah.Infrastructure.Process;
 using Yaah.Net.InfoGathering;
@@ -56,9 +53,10 @@ internal static partial class Program
 
     private static void Main(string[] args)
     {
-        if (getuid() == 0) Console.WriteLine("Avoid running yaah as root/sudo.");
-
         var target = ConfigureLogger();
+        UnhandledExceptionHook();
+
+        if (getuid() == 0) Console.WriteLine("Avoid running yaah as root/sudo.");
 
         Parser.Default.ParseArguments<Options>(args)
             .WithParsed(opts =>
@@ -69,6 +67,7 @@ internal static partial class Program
                     LogManager.ReconfigExistingLoggers();
                 }
 
+                if (opts.Parameters == null) return;
                 Logger.Debug(
                     $"Parameters: {string.Join(", ", opts.Parameters.AsParallel().Select(x => "'" + x + "'"))}");
 
@@ -81,10 +80,6 @@ internal static partial class Program
                         else
                             Console.WriteLine("Search requires only one package");
                     }
-                    // else if (opts.Update)
-                    // {
-                    //     UpdateAll();
-                    // }
                     else
                     {
                         Install(opts.Parameters.ToArray());
@@ -97,19 +92,33 @@ internal static partial class Program
             })
             .WithNotParsed(errs =>
             {
-                Logger.Fatal(string.Join("\n", errs));
+                var errors = errs as Error[] ?? errs.ToArray();
+
+                if (errors.Length == 1 && errors.First() is HelpRequestedError or VersionRequestedError) return;
+                Logger.Fatal(string.Join("\n", errors.Select(x => x)));
                 Environment.Exit(-1);
             });
     }
 
-    private static ColoredConsoleTarget ConfigureLogger(string configFilePath = "NLog.config", string targetName = "console")
+    private static void UnhandledExceptionHook()
+    {
+        AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
+        {
+            Logger.Error($"Object {sender.GetType().Name} trew:");
+            Logger.Fatal(e.ExceptionObject);
+        };
+    }
+
+    private static ColoredConsoleTarget ConfigureLogger(string configFilePath = "NLog.config",
+        string targetName = "console")
     {
         var config = new XmlLoggingConfiguration(configFilePath);
         LogManager.Configuration = config;
         LogManager.ReconfigExistingLoggers();
-        
+
         var target = config.FindTargetByName<ColoredConsoleTarget>(targetName);
-        if (target == null) throw new KeyNotFoundException($"Target {targetName} not found or is not a ColoredConsoleTarget");
+        if (target == null)
+            throw new KeyNotFoundException($"Target {targetName} not found or is not a ColoredConsoleTarget");
         return target;
     }
 
@@ -144,7 +153,7 @@ internal static partial class Program
         List<DetailedPkgInfo> pkgExplicit = [];
 
         SearchExplicitPackages(packages, ref pkgExplicit);
-        
+
         Console.WriteLine(
             $"AUR Explicit ({pkgExplicit.Count}): {string.Join(", ", pkgExplicit.AsParallel().Select(x => $"{x.Name}-{x.Version}"))}");
 
@@ -240,9 +249,9 @@ internal static partial class Program
     private static void SearchExplicitPackages(IEnumerable<string> packages, ref List<DetailedPkgInfo> pkgExplicit)
     {
         var infoResult = Engine.Info(packages).Result;
-        
+
         if (infoResult == null) return;
-        
+
         pkgExplicit = infoResult.Results.ToList();
     }
 

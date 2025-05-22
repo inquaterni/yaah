@@ -1,6 +1,4 @@
-using System.Runtime.InteropServices;
 using NLog;
-using Yaah.Infrastructure.Alpm;
 using Yaah.Infrastructure.Alpm.Collections;
 using Yaah.Infrastructure.Alpm.Nodes;
 using Yaah.Infrastructure.Errors.Exceptions;
@@ -49,9 +47,7 @@ public class DatabaseController : IDisposable
     {
         var dbHandle = alpm_get_localdb(_alpmHandle);
         if (dbHandle == IntPtr.Zero)
-        {
             throw new DatabaseException($"alpm_get_localdb failed: {TranslateAlpmError(_alpmHandle)}");
-        }
         return dbHandle;
     }
 
@@ -73,17 +69,14 @@ public class DatabaseController : IDisposable
     public static IntPtr GetPackage(IntPtr dbHandle, string name)
     {
         if (dbHandle == IntPtr.Zero) throw new ArgumentNullException(nameof(dbHandle));
-        
+
         var pkgPtr = alpm_db_get_pkg(dbHandle, name);
         if (pkgPtr == IntPtr.Zero)
-        {
             throw new DatabaseException($"alpm_db_get_pkg failed: {TranslateAlpmError(GetErrorFromHandle(dbHandle))}");
-        }
         return pkgPtr;
     }
 
     /// <summary>
-    /// 
     /// </summary>
     /// <param name="dbHandle"></param>
     /// <returns></returns>
@@ -92,12 +85,10 @@ public class DatabaseController : IDisposable
     public static AlpmList<AlpmPkgListNode> GetPackageCache(IntPtr dbHandle)
     {
         if (dbHandle == IntPtr.Zero) throw new ArgumentNullException(nameof(dbHandle));
-        
+
         var head = alpm_db_get_pkgcache(dbHandle);
         if (head == IntPtr.Zero)
-        {
             throw new DatabaseException($"alpm_db_get_pkgcache failed: {TranslateAlpmError(dbHandle)}");
-        }
         return new AlpmList<AlpmPkgListNode>(head);
     }
 
@@ -106,10 +97,7 @@ public class DatabaseController : IDisposable
     {
         if (pkg == IntPtr.Zero) throw new ArgumentNullException(nameof(pkg));
         var result = alpm_pkg_get_db(pkg);
-        if (result == IntPtr.Zero)
-        {
-            throw new DatabaseException($"alpm_pkg_get_db failed: {TranslateAlpmError(pkg)}");
-        }
+        if (result == IntPtr.Zero) throw new DatabaseException($"alpm_pkg_get_db failed: {TranslateAlpmError(pkg)}");
         return result;
     }
 
@@ -150,10 +138,8 @@ public class DatabaseController : IDisposable
         if (_alpmHandle == IntPtr.Zero) throw new ArgumentNullException(nameof(_alpmHandle));
         var head = alpm_get_syncdbs(_alpmHandle);
         if (head == IntPtr.Zero)
-        {
             throw new DatabaseException($"alpm_get_syncdbs failed: {TranslateAlpmError(_alpmHandle)}");
-        }
-        
+
         return new AlpmList<AlpmDbListNode>(head);
     }
 

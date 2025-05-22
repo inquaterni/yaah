@@ -5,57 +5,43 @@ using static Yaah.Infrastructure.Alpm.LibAlpm;
 
 namespace Yaah.Infrastructure.Alpm.Collections;
 
-
-
 /// <summary>
-/// A doubly linked list.
+///     A doubly linked list.
 /// </summary>
-/// <see cref="https://man.archlinux.org/man/libalpm_list.3.en"/>
+/// <see cref="https://man.archlinux.org/man/libalpm_list.3.en" />
 public unsafe class AlpmList<TNode> : ICollection<TNode>
     where TNode : unmanaged, IAlpmListNode<TNode>
 {
-    internal TNode* Head;
     private TNode* _tail;
+    internal TNode* Head;
 
     public AlpmList(TNode* head = null)
     {
         Head = head;
         _tail = FindTail();
     }
+
     public AlpmList(AlpmList<TNode> other)
     {
         Head = other.Head;
         _tail = other._tail;
     }
+
     public AlpmList(IntPtr head)
     {
         Head = (TNode*)head;
         _tail = FindTail();
     }
 
-    private TNode* FindTail()
-    {
-        if (Head == null)
-            return null;
-
-        var node = Head;
-        TNode* last = null;
-        
-        while (node != null)
-        {
-            last = node;
-            node = node->Next;
-            Count++;
-        }
-        
-        return last;
-    }
-
     public IEnumerator<TNode> GetEnumerator()
     {
         return new AlpmListEnumerator<TNode>(this);
     }
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
 
     public void Add(TNode item)
     {
@@ -73,14 +59,6 @@ public unsafe class AlpmList<TNode> : ICollection<TNode>
         Count++;
     }
 
-    public void AddRange(IEnumerable<TNode> items)
-    {
-        foreach (var item in items)
-        {
-            Add(item);
-        }
-    }
-
     public void Clear()
     {
         var current = Head;
@@ -90,6 +68,7 @@ public unsafe class AlpmList<TNode> : ICollection<TNode>
             // Marshal.FreeHGlobal(current->Data);
             current = Next;
         }
+
         Head = null;
         _tail = null;
         Count = 0;
@@ -103,6 +82,7 @@ public unsafe class AlpmList<TNode> : ICollection<TNode>
             if (current->Equals(item)) return true;
             current = (TNode*)alpm_list_next((IntPtr)current);
         }
+
         return false;
     }
 
@@ -115,10 +95,7 @@ public unsafe class AlpmList<TNode> : ICollection<TNode>
             throw new ArgumentException("Destination array has fewer elements than required.");
 
         var index = arrayIndex;
-        foreach (var node in this)
-        {
-            array[index++] = node;
-        }
+        foreach (var node in this) array[index++] = node;
     }
 
     public bool Remove(TNode item)
@@ -139,13 +116,38 @@ public unsafe class AlpmList<TNode> : ICollection<TNode>
                 Count--;
                 return true;
             }
+
             current = current->Next;
         }
+
         return false;
     }
 
     public int Count { get; private set; }
     public bool IsReadOnly => false;
+
+    private TNode* FindTail()
+    {
+        if (Head == null)
+            return null;
+
+        var node = Head;
+        TNode* last = null;
+
+        while (node != null)
+        {
+            last = node;
+            node = node->Next;
+            Count++;
+        }
+
+        return last;
+    }
+
+    public void AddRange(IEnumerable<TNode> items)
+    {
+        foreach (var item in items) Add(item);
+    }
 
     public AlpmList<TNode> Extend(AlpmList<TNode> other, ExtendOptions options = ExtendOptions.SaveEqual)
     {
@@ -169,7 +171,7 @@ public unsafe class AlpmList<TNode> : ICollection<TNode>
 
                 return this;
             case ExtendOptions.DeleteEqual:
-                
+
                 var current = other.Head;
                 while (current != null)
                 {
@@ -181,6 +183,7 @@ public unsafe class AlpmList<TNode> : ICollection<TNode>
 
                     current = (TNode*)alpm_list_next((IntPtr)current);
                 }
+
                 return this;
             default:
                 throw new ArgumentOutOfRangeException(nameof(options), options, null);
@@ -200,19 +203,19 @@ public unsafe class AlpmList<TNode> : ICollection<TNode>
 public unsafe class AlpmListEnumerator<TNode>(AlpmList<TNode> list) : IEnumerator<TNode>
     where TNode : unmanaged, IAlpmListNode<TNode>
 {
-    private TNode* _current = null;
     private readonly TNode* _head = list.Head;
+    private TNode* _current = null;
     private bool _disposed;
 
     public TNode Current => *_current;
     object IEnumerator.Current => Current;
-    
+
 
     public bool MoveNext()
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
         if (_head == null) return false;
-            
+
         if (_current == null)
         {
             _current = _head;

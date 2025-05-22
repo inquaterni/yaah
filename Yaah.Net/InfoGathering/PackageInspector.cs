@@ -134,9 +134,6 @@ public class PackageInspector
         return result;
     }
 
-    /// <summary>
-    ///     Helper to add range of DetailedPkgInfo to the stack
-    /// </summary>
     private static void AddRange(IEnumerable<DetailedPkgInfo> range, Stack<DetailedPkgInfo> stack)
     {
         foreach (var item in range)

@@ -1114,7 +1114,11 @@ EXCLUDE_SYMLINKS       = NO
 
 EXCLUDE_PATTERNS       = */*Testing/* \
                          */bin/* \
-                         */obj/*
+                         */obj/* \
+                         */Collections/* \
+                         */Enums/* \
+                         */Interfaces/* \
+                         */Nodes/*
 
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names

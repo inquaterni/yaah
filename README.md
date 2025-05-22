@@ -23,11 +23,11 @@ Proceed to [Arch Linux installation](#arch-linux-based-systems)
 ### Basic
 Print help
 ```shell
-dotnet run --project ./Yaah.CLI/Yaah.CLI.csproj --help
+dotnet run --project ./Yaah.CLI/Yaah.CLI.csproj -- --help
 ```
 Install/Update packages
 ```shell
-dotnet run --project ./Yaah.CLI/Yaah.CLI.csproj -S <aur-package-name> <another-aur-package-name>
+dotnet run --project ./Yaah.CLI/Yaah.CLI.csproj -S <aur-package-name> <another-aur-package-name> ...
 ```
 ### Debug
 Enable debug logging level

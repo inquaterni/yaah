@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using Yaah.Infrastructure.Database;
 using Yaah.Infrastructure.Errors.Exceptions;
 
@@ -15,9 +14,9 @@ public class DatabaseTest
     {
         var db = Controller.GetLocalDb();
         var pkg = DatabaseController.GetPackage(db, packageName);
-        
+
         Assert.NotEqual(IntPtr.Zero, pkg);
-        
+
         var name = DatabaseController.GetPackageName(pkg);
         Assert.NotNull(name);
         Assert.Equal(name, packageName);

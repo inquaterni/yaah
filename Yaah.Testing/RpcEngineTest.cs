@@ -26,6 +26,15 @@ public class RpcEngineTest
     }
 
     [Theory]
+    [InlineData("hcgjvjv")]
+    public async Task Search_BadData_ReturnsEmptyResult(string data)
+    {
+        var result = await _engine.Search(data);
+        Assert.NotNull(result);
+        Assert.Equal((uint)0, result.ResultCount);
+    }
+
+    [Theory]
     [InlineData("zen-browser")]
     [InlineData("sent")]
     public async Task Info_ReturnsInfoResult(string searchTerm)
