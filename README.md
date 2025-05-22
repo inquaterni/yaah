@@ -36,5 +36,5 @@ dotnet run --project ./Yaah.CLI/Yaah.CLI.csproj -D <other options>
 ```
 Serialize graph for given package (does not install package)
 ```shell
-dotnet run --project ./Yaah.CLI/Yaah.CLI.csproj -Dd <aur-package-name> <output-path>
+dotnet run --project ./Yaah.CLI/Yaah.CLI.csproj -Dg <aur-package-name> <output-path>
 ```
