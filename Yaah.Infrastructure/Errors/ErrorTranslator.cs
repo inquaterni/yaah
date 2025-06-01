@@ -1,5 +1,5 @@
 using System.Runtime.InteropServices;
-using static Yaah.Infrastructure.Alpm.LibAlpm;
+using static Yaah.Infrastructure.LibAlpm;
 
 namespace Yaah.Infrastructure.Errors;
 
@@ -17,10 +17,16 @@ public static class ErrorTranslator
 
     public static string TranslateAlpmError(int errCode)
     {
-        if (errCode > MissingCapabilitySignatures) return "Unknown error. This error is not related to libalpm.";
+        if (errCode > MissingCapabilitySignatures)
+        {
+            return "Unknown error. This error is not related to libalpm.";
+        }
 
         var ptr = alpm_strerror(errCode);
-        if (ptr == IntPtr.Zero) return $"error code {errCode}";
+        if (ptr == IntPtr.Zero)
+        {
+            return $"error code {errCode}";
+        }
         var result = Marshal.PtrToStringAnsi(ptr);
         return string.IsNullOrEmpty(result) ? $"error code {errCode}" : result;
     }

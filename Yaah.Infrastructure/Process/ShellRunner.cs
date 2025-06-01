@@ -8,7 +8,10 @@ public static class ShellRunner
 
     public static void Run(string cmd)
     {
-        if (Shell == null) throw new ArgumentException("Environment variable SHELL not set");
+        if (Shell == null)
+        {
+            throw new ArgumentException("Environment variable SHELL not set");
+        }
 
         var startInfo = new ProcessStartInfo(Shell)
         {
@@ -17,7 +20,10 @@ public static class ShellRunner
         };
 
         using var process = System.Diagnostics.Process.Start(startInfo);
-        if (process == null) throw new ArgumentException("Failed to run process");
+        if (process == null)
+        {
+            throw new ArgumentException("Failed to run process");
+        }
 
         process.WaitForExit();
     }

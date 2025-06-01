@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Yaah.Infrastructure.Alpm;
+namespace Yaah.Infrastructure;
 
 public static partial class LibAlpm
 {

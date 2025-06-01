@@ -3,7 +3,7 @@ using NLog;
 using QuikGraph;
 using QuikGraph.Algorithms;
 using Yaah.Infrastructure.Versioning;
-using Yaah.Net.Models;
+using Yaah.Infrastructure.Models;
 
 namespace Yaah.DReS;
 
@@ -28,9 +28,13 @@ public static class Graph
         {
             var match = VersionController.GetVersionMatch(dep);
             if (match != null)
+            {
                 yield return match.Groups["name"].Value;
+            }
             else
+            {
                 yield return dep;
+            }
         }
     }
 
@@ -38,7 +42,10 @@ public static class Graph
     {
         foreach (var item in enumerable)
         {
-            if (stack.Contains(item)) return;
+            if (stack.Contains(item))
+            {
+                return;
+            }
             stack.Push(item);
         }
     }
@@ -47,7 +54,10 @@ public static class Graph
     {
         foreach (var pkg in pkgs)
         {
-            if (table[pkg] is not T t) continue;
+            if (table[pkg] is not T t)
+            {
+                continue;
+            }
             yield return t;
         }
     }
@@ -83,7 +93,10 @@ public static class Graph
                     ConcatNullable(ConcatNullable(current.Depends, current.MakeDepends), current.CheckDepends));
                 foreach (var depend in allDepends)
                 {
-                    if (!table.ContainsKey(depend)) continue;
+                    if (!table.ContainsKey(depend))
+                    {
+                        continue;
+                    }
 
                     Logger.Debug($"Adding vertex {depend}");
                     result.AddVertex(depend);
@@ -123,7 +136,10 @@ public static class Graph
 
         var result = new AdjacencyGraph<string, Edge<string>>();
         var detailedPkgInfos = pkgs as DetailedPkgInfo[] ?? pkgs.ToArray();
-        if (detailedPkgInfos.Length == 0) return result;
+        if (detailedPkgInfos.Length == 0)
+        {
+            return result;
+        }
 
         var stack = new Stack<string>();
         AddRange(detailedPkgInfos.Select(item => item.Name), stack);
@@ -137,7 +153,10 @@ public static class Graph
                     ConcatNullable(ConcatNullable(current.Depends, current.MakeDepends), current.CheckDepends));
                 foreach (var depend in allDepends)
                 {
-                    if (!table.ContainsKey(depend)) continue;
+                    if (!table.ContainsKey(depend))
+                    {
+                        continue;
+                    }
 
                     Logger.Debug($"Adding vertex {depend}");
                     result.AddVertex(depend);

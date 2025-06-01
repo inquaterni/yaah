@@ -1,0 +1,35 @@
+@startuml
+title Graph Serialization Flow
+
+actor User
+participant "Program" as Main
+participant "PackageInspector" as Inspector
+participant "Graph" as Graph
+participant "GraphvizAlgorithm" as Graphviz
+
+User -> Main: Serialize graph
+activate Main
+
+Main -> Inspector: new PackageInspector(DB)
+activate Inspector
+Inspector -> Inspector: Gather package info
+Inspector --> Main: Package details
+deactivate Inspector
+
+Main -> Graph: BuildFor(packages, table)
+activate Graph
+Graph -> Graph: Build dependency graph
+Graph --> Main: Dependency graph
+deactivate Graph
+
+Main -> Graphviz: new GraphvizAlgorithm(graph)
+activate Graphviz
+Graphviz -> Graphviz: Format vertices
+Graphviz -> Graphviz: Generate graph
+Graphviz --> Main: Graph serialized
+deactivate Graphviz
+
+Main --> User: Graph saved to file
+deactivate Main
+
+@enduml 

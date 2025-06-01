@@ -1,5 +1,5 @@
 using System.Text.RegularExpressions;
-using static Yaah.Infrastructure.Alpm.LibAlpm;
+using static Yaah.Infrastructure.LibAlpm;
 
 namespace Yaah.Infrastructure.Versioning;
 

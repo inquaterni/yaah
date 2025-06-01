@@ -1,0 +1,25 @@
+@startuml
+title Package Search Flow
+
+actor User
+participant "Program" as Main
+participant "RpcEngine" as RPC
+participant "SearchResult" as Result
+
+User -> Main: Search package
+activate Main
+
+Main -> RPC: Search(package)
+activate RPC
+RPC -> RPC: Construct URL args
+RPC -> "AUR API": GET request
+"AUR API" --> RPC: JSON response
+RPC -> Result: Deserialize response
+RPC --> Main: SearchResult
+deactivate RPC
+
+Main -> Main: Process results
+Main --> User: Display package info
+deactivate Main
+
+@enduml

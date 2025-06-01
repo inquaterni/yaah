@@ -1,9 +1,7 @@
 using NLog;
-using Yaah.Infrastructure.Alpm.Collections;
-using Yaah.Infrastructure.Alpm.Nodes;
 using Yaah.Infrastructure.Errors.Exceptions;
 using static Yaah.Infrastructure.Errors.ErrorTranslator;
-using static Yaah.Infrastructure.Alpm.LibAlpm;
+using static Yaah.Infrastructure.LibAlpm;
 
 namespace Yaah.Infrastructure.Database;
 
@@ -22,7 +20,7 @@ public class DatabaseController : IDisposable
         if (_err != 0)
         {
             Logger.Fatal($"Could not initialize libalpm: {TranslateAlpmError(_err)}");
-            throw new DatabaseException($"alpm_initialize failed: {TranslateAlpmError(_err)}");
+            throw new DatabaseException(_err);
         }
 
         Logger.Debug("Registering core db");
@@ -47,13 +45,19 @@ public class DatabaseController : IDisposable
     {
         var dbHandle = alpm_get_localdb(_alpmHandle);
         if (dbHandle == IntPtr.Zero)
-            throw new DatabaseException($"alpm_get_localdb failed: {TranslateAlpmError(_alpmHandle)}");
+        {
+            throw new DatabaseException(_err);
+        }
+
         return dbHandle;
     }
 
     public IntPtr RegisterSyncDb(string treename, int siglevel)
     {
-        if (string.IsNullOrEmpty(treename)) throw new ArgumentNullException(nameof(treename));
+        if (string.IsNullOrEmpty(treename))
+        {
+            throw new ArgumentNullException(nameof(treename));
+        }
         var result = alpm_register_syncdb(_alpmHandle, treename, siglevel);
         return result;
     }
@@ -68,44 +72,32 @@ public class DatabaseController : IDisposable
     /// <exception cref="ArgumentNullException">Occurs when \p dbHandle is NULL</exception>
     public static IntPtr GetPackage(IntPtr dbHandle, string name)
     {
-        if (dbHandle == IntPtr.Zero) throw new ArgumentNullException(nameof(dbHandle));
+        if (dbHandle == IntPtr.Zero)
+        {
+            throw new ArgumentNullException(nameof(dbHandle));
+        }
 
         var pkgPtr = alpm_db_get_pkg(dbHandle, name);
         if (pkgPtr == IntPtr.Zero)
-            throw new DatabaseException($"alpm_db_get_pkg failed: {TranslateAlpmError(GetErrorFromHandle(dbHandle))}");
+        {
+            throw new DatabaseException(dbHandle);
+        }
+
         return pkgPtr;
-    }
-
-    /// <summary>
-    /// </summary>
-    /// <param name="dbHandle"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentNullException">Occurs when \p dbHandle is NULL</exception>
-    /// <exception cref="DatabaseException">Occurs when alpm_db_get_pkgcache fails</exception>
-    public static AlpmList<AlpmPkgListNode> GetPackageCache(IntPtr dbHandle)
-    {
-        if (dbHandle == IntPtr.Zero) throw new ArgumentNullException(nameof(dbHandle));
-
-        var head = alpm_db_get_pkgcache(dbHandle);
-        if (head == IntPtr.Zero)
-            throw new DatabaseException($"alpm_db_get_pkgcache failed: {TranslateAlpmError(dbHandle)}");
-        return new AlpmList<AlpmPkgListNode>(head);
     }
 
 
     public static IntPtr GetDbFromPackage(IntPtr pkg)
     {
-        if (pkg == IntPtr.Zero) throw new ArgumentNullException(nameof(pkg));
+        if (pkg == IntPtr.Zero)
+        {
+            throw new ArgumentNullException(nameof(pkg));
+        }
         var result = alpm_pkg_get_db(pkg);
-        if (result == IntPtr.Zero) throw new DatabaseException($"alpm_pkg_get_db failed: {TranslateAlpmError(pkg)}");
-        return result;
-    }
-
-    // FIXME: Seg faults
-    public static string GetDbName(IntPtr dbHandle)
-    {
-        if (dbHandle == IntPtr.Zero) throw new ArgumentNullException(nameof(dbHandle));
-        var result = alpm_db_get_name(dbHandle);
+        if (result == IntPtr.Zero)
+        {
+            throw new DatabaseException(pkg);
+        }
         return result;
     }
 
@@ -116,7 +108,10 @@ public class DatabaseController : IDisposable
     /// <exception cref="ArgumentNullException">Occurs when pointer is NULL</exception>
     public static string GetPackageName(IntPtr pkg)
     {
-        if (pkg == IntPtr.Zero) throw new ArgumentNullException(nameof(pkg));
+        if (pkg == IntPtr.Zero)
+        {
+            throw new ArgumentNullException(nameof(pkg));
+        }
         var name = alpm_pkg_get_name(pkg);
         return name;
     }
@@ -128,19 +123,12 @@ public class DatabaseController : IDisposable
     /// <exception cref="ArgumentNullException">Occurs when pointer is NULL</exception>
     public static string GetPackageVersion(IntPtr pkg)
     {
-        if (pkg == IntPtr.Zero) throw new ArgumentNullException(nameof(pkg));
+        if (pkg == IntPtr.Zero)
+        {
+            throw new ArgumentNullException(nameof(pkg));
+        }
         var result = alpm_pkg_get_version(pkg);
         return result;
-    }
-
-    public AlpmList<AlpmDbListNode> GetSyncDbs()
-    {
-        if (_alpmHandle == IntPtr.Zero) throw new ArgumentNullException(nameof(_alpmHandle));
-        var head = alpm_get_syncdbs(_alpmHandle);
-        if (head == IntPtr.Zero)
-            throw new DatabaseException($"alpm_get_syncdbs failed: {TranslateAlpmError(_alpmHandle)}");
-
-        return new AlpmList<AlpmDbListNode>(head);
     }
 
 
@@ -152,8 +140,11 @@ public class DatabaseController : IDisposable
     private void ReleaseUnmanagedResources()
     {
         _err = alpm_release(_alpmHandle);
-        if (_err == 0) return;
+        if (_err == 0)
+        {
+            return;
+        }
         Logger.Fatal($"Could not free memory: {TranslateAlpmError(_err)}");
-        throw new DatabaseException($"alpm_release failed: {TranslateAlpmError(_err)}");
+        throw new DatabaseException(_err);
     }
 }

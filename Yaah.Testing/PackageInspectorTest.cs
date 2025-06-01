@@ -1,5 +1,5 @@
 using Yaah.Infrastructure.Database;
-using Yaah.Net.InfoGathering;
+using Yaah.Infrastructure.InfoGathering;
 
 namespace Testing;
 

@@ -1,5 +1,5 @@
-using Yaah.Net.Models;
-using Yaah.Net.RPC;
+using Yaah.Infrastructure.Models;
+using Yaah.Infrastructure.RPC;
 
 namespace Testing;
 

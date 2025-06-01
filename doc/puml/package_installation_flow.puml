@@ -1,0 +1,48 @@
+@startuml
+title Package Installation Flow
+
+actor User
+participant "Program" as Main
+participant "RpcEngine" as RPC
+participant "PackageInspector" as Inspector
+participant "Graph" as Graph
+participant "DatabaseController" as DB
+participant "ShellRunner" as Shell
+
+User -> Main: Install packages
+activate Main
+
+Main -> RPC: Info(packages)
+activate RPC
+RPC --> Main: Package info
+deactivate RPC
+
+Main -> Inspector: new PackageInspector(DB)
+activate Inspector
+Inspector -> Inspector: Gather package info
+Inspector --> Main: Package details
+deactivate Inspector
+
+Main -> Graph: BuildFor(packages, table)
+activate Graph
+Graph -> Graph: Build dependency graph
+Graph -> Graph: Check for cycles
+Graph --> Main: Dependency graph
+deactivate Graph
+
+Main -> Shell: CloneRepos()
+activate Shell
+Shell -> Shell: Clone/pull AUR repos
+Shell --> Main: Repos cloned
+deactivate Shell
+
+Main -> Shell: MakePackages()
+activate Shell
+Shell -> Shell: Run makepkg
+Shell --> Main: Packages built
+deactivate Shell
+
+Main --> User: Installation complete
+deactivate Main
+
+@enduml

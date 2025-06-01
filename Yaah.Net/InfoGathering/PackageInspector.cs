@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Concurrent;
 using NLog;
 using Yaah.Infrastructure.Database;
+using Yaah.Infrastructure.Models;
+using Yaah.Infrastructure.RPC;
 using Yaah.Infrastructure.Versioning;
-using Yaah.Net.Models;
-using Yaah.Net.RPC;
 
-namespace Yaah.Net.InfoGathering;
+namespace Yaah.Infrastructure.InfoGathering;
 
 public class PackageInspector
 {
@@ -28,13 +28,22 @@ public class PackageInspector
     private async Task<DetailedPkgInfo[]> InfoNullable(string[]? data)
     {
         Logger.Debug($"Data: {string.Join(", ", data ?? ["NULL"])}");
-        if (data == null || data.Length == 0) return [];
+        if (data == null || data.Length == 0)
+        {
+            return [];
+        }
         var processedData = ProcessData(data);
         Logger.Debug($"Processed data: {string.Join(", ", !processedData.IsEmpty ? processedData : ["EMPTY"])}");
-        if (processedData.IsEmpty) return [];
+        if (processedData.IsEmpty)
+        {
+            return [];
+        }
 
         var response = await _engine.Info(processedData);
-        if (response == null || response.ResultCount == 0) return [];
+        if (response == null || response.ResultCount == 0)
+        {
+            return [];
+        }
 
         return response.Results;
     }
@@ -138,7 +147,10 @@ public class PackageInspector
     {
         foreach (var item in range)
         {
-            if (stack.Contains(item)) continue;
+            if (stack.Contains(item))
+            {
+                continue;
+            }
             stack.Push(item);
         }
     }

@@ -10,9 +10,9 @@ using QuikGraph.Graphviz;
 using Yaah.DReS;
 using Yaah.Infrastructure.Database;
 using Yaah.Infrastructure.Process;
-using Yaah.Net.InfoGathering;
-using Yaah.Net.Models;
-using Yaah.Net.RPC;
+using Yaah.Infrastructure.InfoGathering;
+using Yaah.Infrastructure.Models;
+using Yaah.Infrastructure.RPC;
 using FileDotEngine = Yaah.DReS.Optional.FileDotEngine;
 
 namespace Yaah.CLI;
@@ -56,7 +56,10 @@ internal static partial class Program
         var target = ConfigureLogger();
         UnhandledExceptionHook();
 
-        if (getuid() == 0) Console.WriteLine("Avoid running yaah as root/sudo.");
+        if (getuid() == 0)
+        {
+            Console.WriteLine("Avoid running yaah as root/sudo.");
+        }
 
         Parser.Default.ParseArguments<Options>(args)
             .WithParsed(opts =>
@@ -66,8 +69,11 @@ internal static partial class Program
                     LogManager.Configuration.AddRule(LogLevel.Debug, LogLevel.Fatal, target);
                     LogManager.ReconfigExistingLoggers();
                 }
-
-                if (opts.Parameters == null) return;
+                if (opts.Parameters == null)
+                {
+                    return;
+                }
+                
                 Logger.Debug(
                     $"Parameters: {string.Join(", ", opts.Parameters.AsParallel().Select(x => "'" + x + "'"))}");
 
@@ -76,9 +82,13 @@ internal static partial class Program
                     if (opts.Search)
                     {
                         if (opts.Parameters.ToArray().Length == 1)
+                        {
                             Search(opts.Parameters.First());
+                        }
                         else
+                        {
                             Console.WriteLine("Search requires only one package");
+                        }
                     }
                     else
                     {
@@ -86,7 +96,11 @@ internal static partial class Program
                     }
                 }
 
-                if (!opts.GraphSerialization || opts.Sync || opts.Search) return;
+                if (!opts.GraphSerialization || opts.Sync || opts.Search)
+                {
+                    return;
+                }
+                
                 var array = opts.Parameters.ToArray();
                 SerializeGraph(array[..^1], array[^1]);
             })
@@ -94,7 +108,10 @@ internal static partial class Program
             {
                 var errors = errs as Error[] ?? errs.ToArray();
 
-                if (errors.Length == 1 && errors.First() is HelpRequestedError or VersionRequestedError) return;
+                if (errors.Length == 1 && errors.First() is HelpRequestedError or VersionRequestedError)
+                {
+                    return;
+                }
                 Logger.Fatal(string.Join("\n", errors.Select(x => x)));
                 Environment.Exit(-1);
             });
@@ -118,7 +135,9 @@ internal static partial class Program
 
         var target = config.FindTargetByName<ColoredConsoleTarget>(targetName);
         if (target == null)
+        {
             throw new KeyNotFoundException($"Target {targetName} not found or is not a ColoredConsoleTarget");
+        }
         return target;
     }
 
@@ -207,7 +226,10 @@ internal static partial class Program
     private static void SerializeGraph(IEnumerable<string> packages, string path)
     {
         Logger.Debug($"Serializing graph to '{path}'");
-        if (!Directory.Exists(Path.GetDirectoryName(path))) return;
+        if (!Directory.Exists(Path.GetDirectoryName(path)))
+        {
+            return;
+        }
 
         var inspector = new PackageInspector(Db.GetLocalDb());
         var aurExplicit = packages as string[] ?? packages.ToArray();
@@ -250,7 +272,10 @@ internal static partial class Program
     {
         var infoResult = Engine.Info(packages).Result;
 
-        if (infoResult == null) return;
+        if (infoResult == null)
+        {
+            return;
+        }
 
         pkgExplicit = infoResult.Results.ToList();
     }
@@ -259,14 +284,22 @@ internal static partial class Program
     {
         flags += Input("Clean build? [Y/n]\n", "c", input =>
         {
-            if (input != null && input.Equals("n", StringComparison.OrdinalIgnoreCase)) return string.Empty;
+            if (input != null && input.Equals("n", StringComparison.OrdinalIgnoreCase))
+            {
+                return string.Empty;
+            }
+            
             Logger.Debug("Adding -c to flags");
             return "c";
         });
 
         flags += Input("Remove make dependencies after installation? [y/N]\n", string.Empty, input =>
         {
-            if (input == null || !input.Equals("y", StringComparison.OrdinalIgnoreCase)) return string.Empty;
+            if (input == null || !input.Equals("y", StringComparison.OrdinalIgnoreCase))
+            {
+                return string.Empty;
+            }
+            
             Logger.Debug("Adding -r to flags");
             return "r";
         });

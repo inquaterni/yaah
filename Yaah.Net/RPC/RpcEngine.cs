@@ -1,8 +1,8 @@
 using System.Text.Json;
 using NLog;
-using Yaah.Net.Models;
+using Yaah.Infrastructure.Models;
 
-namespace Yaah.Net.RPC;
+namespace Yaah.Infrastructure.RPC;
 
 public class RpcEngine : IDisposable
 {
@@ -129,6 +129,9 @@ public class RpcEngine : IDisposable
 
     private void Dispose(bool disposing)
     {
-        if (disposing) _client.Dispose();
+        if (disposing)
+        {
+            _client.Dispose();
+        }
     }
 }
