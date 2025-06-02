@@ -1,6 +1,6 @@
 # yaah
 ## Yet another AUR helper
-yaah (Yet Another AUR Helper) is a command-line utility written in C# designed to simplify the interaction with the
+`yaah` is a command-line utility written in C# designed to simplify the interaction with the
 [Arch User Repository (AUR)](https://aur.archlinux.org/). The primary purpose of the program is to 
 allow users to search, install, and update AUR packages, tasks that are not directly supported by the 
 default Arch Linux's package manager [`pacman`](https://wiki.archlinux.org/title/Pacman).
@@ -89,7 +89,7 @@ dotnet run --project ./Yaah.CLI/Yaah.CLI.csproj -Dgс <aur-package-name> <output
 - `Graph`
   Implements dependency resolution using graph algorithms. Builds and validates dependency graphs for package installation.
 - `ShellRunner`
-  Executes shell commands for package building and installation. Manages the interaction with makepkg and git.
+  Executes shell commands for package building and installation. Manages the interaction with `makepkg` and `git`.
 
 ### Application Structure
 The application follows a modular architecture with clear separation of concerns across several projects:
@@ -102,17 +102,16 @@ The application follows a modular architecture with clear separation of concerns
 
 - `Yaah.Net`: Network and data handling
   - Manages communication with AUR API
-  - Contains data models for package information
   - Handles package information processing and dependency analysis
 
 - `Yaah.Infrastructure`: System-level operations
+  - Contains data models for package information
   - Provides database access through `libalpm`
   - Manages system-level operations and shell commands
   - Handles low-level system interactions
 
 - `Yaah.DReS`: Dependency Resolution System
   - Implements graph-based dependency resolution
-  - Handles package dependency analysis and validation
   - Manages installation order determination
 
 #### Component Interaction
