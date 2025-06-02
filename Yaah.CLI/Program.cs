@@ -151,7 +151,7 @@ internal static partial class Program
         }
 
         var i = 0;
-        Parallel.ForEach(searchRes.Results, result =>
+        foreach (var result in searchRes.Results)
         {
             var resultStr = $"{++i} {result.Name} {result.Version} ";
             if (result.OutOfDate != null)
@@ -163,7 +163,7 @@ internal static partial class Program
 
             resultStr += $"\n\t{result.Description}";
             Console.WriteLine(resultStr);
-        });
+        }
     }
 
     private static void Install(string[] packages)
@@ -204,24 +204,6 @@ internal static partial class Program
         CloneRepos(installOrder, table);
         MakePackages(installOrder, flags);
     }
-
-    // private static unsafe void UpdateAll()
-    // {
-    //     var localCache = DatabaseController.GetPackageCache(Db.GetLocalDb());
-    //     var syncDbs = Db.GetSyncDbs();
-    //     var syncCache = new AlpmList<AlpmPkgListNode>();
-    //     foreach (var syncDb in syncDbs)
-    //     {
-    //         var pkgCache = DatabaseController.GetPackageCache(syncDb.Data);
-    //         syncCache.AddRange(pkgCache);
-    //     }
-    //     
-    //     var allCache = localCache.Extend(syncCache, ExtendOptions.DeleteEqual);
-    //     var diff = allCache.Except(syncCache).ToList();
-    //     
-    //     Console.WriteLine($"diff: {string.Join(", ", diff.Select(x => DatabaseController.GetPackageName(x.Data)))}");
-    //     Console.WriteLine(diff.Count);
-    // }
 
     private static void SerializeGraph(IEnumerable<string> packages, string path)
     {
